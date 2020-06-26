@@ -54,13 +54,13 @@ class DatasetFromObj(data.Dataset):
                 img_A = img_A.resize((nw, nh), Image.BICUBIC)
                 img_B = img_B.resize((nw, nh), Image.BICUBIC)
 
-                if self.rotate and random.random > 0.9:
+                if self.rotate and random.random() > 0.9:
                     angle_list = [0, 90, 180, 270]
                     random_angle = random.choice(angle_list)
                     img_A = img_A.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
                     img_B = img_B.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
 
-                if self.blur and random.random > 0.8:
+                if self.blur and random.random() > 0.8:
                     sigma_list = [1, 1.5, 2]
                     sigma = random.choice(sigma_list)
                     img_A = img_A.filter(ImageFilter.GaussianBlur(radius=sigma))
