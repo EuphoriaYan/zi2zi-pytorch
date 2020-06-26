@@ -24,6 +24,8 @@ class Zi2ZiModel:
         self.Lcategory_penalty = Lcategory_penalty
         self.L1_penalty = L1_penalty
 
+        self.schedule = schedule
+
         self.save_dir = save_dir
         self.gpu_ids = gpu_ids
 
@@ -47,8 +49,8 @@ class Zi2ZiModel:
 
         self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=self.lr, betas=(0.5, 0.999))
         self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=self.lr, betas=(0.5, 0.999))
-        self.scheduler_G = StepLR(self.optimizer_G, step_size=1, gamma=0.5)
-        self.scheduler_D = StepLR(self.optimizer_D, step_size=1, gamma=0.5)
+        self.scheduler_G = StepLR(self.optimizer_G, step_size=self.schedule, gamma=0.5)
+        self.scheduler_D = StepLR(self.optimizer_D, step_size=self.schedule, gamma=0.5)
 
         self.category_loss = CategoryLoss(self.embedding_num)
         self.real_binary_loss = BinaryLoss(True)
