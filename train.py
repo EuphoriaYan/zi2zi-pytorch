@@ -45,7 +45,7 @@ def main():
     sample_dir = os.path.join(args.experiment_dir, "sample")
     log_dir = os.path.join(args.experiment_dir, "logs")
 
-    train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'))
+    train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'), augment=True, bold=True, rotate=True, blur=True)
     val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
