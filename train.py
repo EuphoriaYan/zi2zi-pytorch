@@ -63,10 +63,11 @@ def main():
         for batch in dataloader:
             model.set_input(batch[0], batch[2], batch[1])
             model.optimize_parameters()
-            print("G_loss: %.4f, D_loss: %.4f" % (model.g_loss.item(), model.d_loss.item()))
             if global_steps % args.checkpoint_steps == 0:
                 model.save_networks(epoch)
             if global_steps % args.sample_steps == 0:
+                print("Step: %d" % global_steps)
+                print("G_loss: %.4f, D_loss: %.4f" % (model.g_loss.item(), model.d_loss.item()))
                 model.sample(batch, os.path.join(sample_dir, "sample_{}_{}".format(epoch, global_steps)))
             global_steps += 1
         model.update_lr()
