@@ -23,7 +23,7 @@ parser.add_argument('--Lconst_penalty', type=int, default=15, help='weight for c
 # parser.add_argument('--Ltv_penalty', dest='Ltv_penalty', type=float, default=0.0, help='weight for tv loss')
 parser.add_argument('--Lcategory_penalty', type=float, default=1.0,
                     help='weight for category loss')
-parser.add_argument('--embedding_num', type=int, default=41,
+parser.add_argument('--embedding_num', type=int, default=40,
                     help="number for distinct embeddings")
 parser.add_argument('--embedding_dim', type=int, default=128, help="dimension for embedding")
 parser.add_argument('--epoch', type=int, default=100, help='number of epoch')
@@ -68,6 +68,9 @@ def main():
     start_epoch = args.resume if args.resume is not None else 0
     global_steps = 0
 
+    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
+    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+
     for epoch in range(start_epoch, args.epoch):
         # generate dataset every epoch so that different styles of saved char imgs can be trained.
         train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
@@ -86,9 +89,11 @@ def main():
                 print("Checkpoint: save checkpoint step %d" % global_steps)
                 model.save_networks(global_steps)
             if global_steps % args.sample_steps == 0:
-                model.sample(batch, os.path.join(sample_dir, "sample_{}_{}".format(epoch, global_steps)))
+                for vbid, val_batch in enumerate(val_dataloader):
+                    model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(vbid, global_steps)))
             global_steps += 1
-        model.update_lr()
+        if (epoch + 1) % args.schedule == 0:
+            model.update_lr()
     model.save_networks(args.epoch)
 
 

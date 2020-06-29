@@ -49,8 +49,6 @@ class Zi2ZiModel:
 
         self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=self.lr, betas=(0.5, 0.999))
         self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=self.lr, betas=(0.5, 0.999))
-        self.scheduler_G = StepLR(self.optimizer_G, step_size=self.schedule, gamma=0.5)
-        self.scheduler_D = StepLR(self.optimizer_D, step_size=self.schedule, gamma=0.5)
 
         self.category_loss = CategoryLoss(self.embedding_num)
         self.real_binary_loss = BinaryLoss(True)
@@ -114,7 +112,7 @@ class Zi2ZiModel:
         fake_AB = torch.cat([self.real_A, self.fake_B], 1)
         fake_D_logits, fake_category_logits = self.netD(fake_AB)
 
-        const_loss = self.mse(self.encoded_real_A, self.encoded_fake_B)
+        const_loss = self.Lconst_penalty * self.mse(self.encoded_real_A, self.encoded_fake_B)
         l1_loss = self.L1_penalty * self.l1_loss(self.fake_B, self.real_B)
         fake_category_loss = self.Lcategory_penalty * self.category_loss(fake_category_logits, self.labels)
 
@@ -125,8 +123,23 @@ class Zi2ZiModel:
         return const_loss, l1_loss, cheat_loss
 
     def update_lr(self):
-        self.scheduler_D.step()
-        self.scheduler_G.step()
+        # There should be only one param_group.
+        for p in self.optimizer_D.param_groups:
+            current_lr = p['lr']
+            update_lr = current_lr / 2.0
+            # minimum learning rate guarantee
+            update_lr = max(update_lr, 0.0002)
+            p['lr'] = update_lr
+            print("Decay net_D learning rate from %.5f to %.5f." % (current_lr, update_lr))
+
+        for p in self.optimizer_G.param_groups:
+            current_lr = p['lr']
+            update_lr = current_lr / 2.0
+            # minimum learning rate guarantee
+            update_lr = max(update_lr, 0.0002)
+            p['lr'] = update_lr
+            print("Decay net_G learning rate from %.5f to %.5f." % (current_lr, update_lr))
+
 
     def optimize_parameters(self):
         self.forward()  # compute fake images: G(A)
@@ -216,10 +229,10 @@ class Zi2ZiModel:
             self.set_input(batch[0], batch[2], batch[1])
             self.forward()
             tensor_to_plot = torch.cat([self.fake_B, self.real_B], 3)
-            img = vutils.make_grid(tensor_to_plot)
+            # img = vutils.make_grid(tensor_to_plot)
             vutils.save_image(tensor_to_plot, basename + "_construct.png")
             '''
-            maybe we don't need generate_img...?
+            We don't need generate_img currently.
             self.set_input(torch.randn(1, self.embedding_dim).repeat(batch[0].shape[0], 1), batch[2], batch[1])
             self.forward()
             tensor_to_plot = torch.cat([self.fake_B, self.real_A], 3)
