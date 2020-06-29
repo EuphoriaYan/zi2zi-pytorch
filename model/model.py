@@ -107,6 +107,7 @@ class Zi2ZiModel:
 
         self.d_loss = d_loss_real + d_loss_fake + category_loss / 2.0
         self.d_loss.backward()
+        return category_loss
 
     def backward_G(self, no_target_source=False):
 
@@ -115,12 +116,13 @@ class Zi2ZiModel:
 
         const_loss = self.mse(self.encoded_real_A, self.encoded_fake_B)
         l1_loss = self.L1_penalty * self.l1_loss(self.fake_B, self.real_B)
-        fake_category_loss = self.category_loss(fake_category_logits, self.labels)
+        fake_category_loss = self.Lcategory_penalty * self.category_loss(fake_category_logits, self.labels)
 
         cheat_loss = self.real_binary_loss(fake_D_logits)
 
-        self.g_loss = cheat_loss + l1_loss + self.Lcategory_penalty * fake_category_loss + const_loss
+        self.g_loss = cheat_loss + l1_loss + fake_category_loss + const_loss
         self.g_loss.backward()
+        return const_loss, l1_loss, cheat_loss
 
     def update_lr(self):
         self.scheduler_D.step()
@@ -131,13 +133,22 @@ class Zi2ZiModel:
         # update D
         self.set_requires_grad(self.netD, True)  # enable backprop for D
         self.optimizer_D.zero_grad()  # set D's gradients to zero
-        self.backward_D()  # calculate gradients for D
+        category_loss = self.backward_D()  # calculate gradients for D
         self.optimizer_D.step()  # update D's weights
         # update G
         self.set_requires_grad(self.netD, False)  # D requires no gradients when optimizing G
         self.optimizer_G.zero_grad()  # set G's gradients to zero
-        self.backward_G()  # calculate graidents for G
+        self.backward_G()  # calculate gradients for G
         self.optimizer_G.step()  # udpate G's weights
+
+        # magic move to Optimize G again
+        # according to https://github.com/carpedm20/DCGAN-tensorflow
+        # collect all the losses along the way
+        self.forward()  # compute fake images: G(A)
+        self.optimizer_G.zero_grad()  # set G's gradients to zero
+        const_loss, l1_loss, cheat_loss = self.backward_G()  # calculate gradients for G
+        self.optimizer_G.step()  # udpate G's weights
+        return const_loss, l1_loss, category_loss, cheat_loss
 
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
@@ -201,13 +212,16 @@ class Zi2ZiModel:
                 # net.eval()
 
     def sample(self, batch, basename):
-        self.set_input(batch[0], batch[2], batch[1])
-        self.forward()
-        tensor_to_plot = torch.cat([self.fake_B, self.real_B], 3)
-        img = vutils.make_grid(tensor_to_plot)
-        vutils.save_image(tensor_to_plot, basename + "_construct.png")
-        self.set_input(torch.randn(1, self.embedding_dim).repeat(batch[0].shape[0], 1), batch[2], batch[1])
-        self.forward()
-        tensor_to_plot = torch.cat([self.fake_B, self.real_A], 3)
-        vutils.save_image(tensor_to_plot, basename + "_generate.png")
-
+        with torch.no_grad():
+            self.set_input(batch[0], batch[2], batch[1])
+            self.forward()
+            tensor_to_plot = torch.cat([self.fake_B, self.real_B], 3)
+            img = vutils.make_grid(tensor_to_plot)
+            vutils.save_image(tensor_to_plot, basename + "_construct.png")
+            '''
+            maybe we don't need generate_img...?
+            self.set_input(torch.randn(1, self.embedding_dim).repeat(batch[0].shape[0], 1), batch[2], batch[1])
+            self.forward()
+            tensor_to_plot = torch.cat([self.fake_B, self.real_A], 3)
+            vutils.save_image(tensor_to_plot, basename + "_generate.png")
+            '''

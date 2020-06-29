@@ -32,7 +32,9 @@ class DatasetFromObj(data.Dataset):
         return len(self.image_provider.examples)
 
     def process(self, img_bytes):
-        "process byte stream to training data entry"
+        """
+            process byte stream to training data entry
+        """
         image_file = bytes_to_file(img_bytes)
         img = Image.open(image_file)
         try:
@@ -51,11 +53,19 @@ class DatasetFromObj(data.Dataset):
                 # add an eps to prevent cropping issue
                 nw = int(multiplier * w) + 1
                 nh = int(multiplier * h) + 1
-                img_A = img_A.resize((nw, nh), Image.BICUBIC)
-                img_B = img_B.resize((nw, nh), Image.BICUBIC)
+
+                # Used to use Image.BICUBIC, change to ANTIALIAS, get better image.
+                img_A = img_A.resize((nw, nh), Image.ANTIALIAS)
+                img_B = img_B.resize((nw, nh), Image.ANTIALIAS)
+
+                shift_x = random.randint(0, max(nw - w - 1, 0))
+                shift_y = random.randint(0, max(nh - h - 1, 0))
+
+                img_A = img_A.crop((shift_x, shift_y, shift_x + w, shift_y + h))
+                img_B = img_B.crop((shift_x, shift_y, shift_x + w, shift_y + h))
 
                 if self.rotate and random.random() > 0.9:
-                    angle_list = [0, 90, 180, 270]
+                    angle_list = [0, 180]
                     random_angle = random.choice(angle_list)
                     img_A = img_A.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
                     img_B = img_B.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
@@ -69,12 +79,20 @@ class DatasetFromObj(data.Dataset):
                 img_A = transforms.ToTensor()(img_A)
                 img_B = transforms.ToTensor()(img_B)
 
+                '''
+                Used to resize here. Change it before rotate and blur.
                 w_offset = random.randint(0, max(0, nh - h - 1))
                 h_offset = random.randint(0, max(0, nh - h - 1))
 
                 img_A = img_A[:, h_offset: h_offset + h, w_offset: w_offset + h]
                 img_B = img_B[:, h_offset: h_offset + h, w_offset: w_offset + h]
+                '''
 
+                img_A = self.transform(img_A)
+                img_B = self.transform(img_B)
+            else:
+                img_A = transforms.ToTensor()(img_A)
+                img_B = transforms.ToTensor()(img_B)
                 img_A = self.transform(img_A)
                 img_B = self.transform(img_B)
 

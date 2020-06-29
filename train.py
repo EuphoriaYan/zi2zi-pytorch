@@ -4,6 +4,13 @@ from model import Zi2ZiModel
 import os
 import argparse
 import torch
+import random
+import time
+import math
+
+randomSeed = 7777
+random.seed(randomSeed)
+torch.manual_seed(randomSeed)
 
 parser = argparse.ArgumentParser(description='Train')
 parser.add_argument('--experiment_dir', required=True,
@@ -44,10 +51,11 @@ def main():
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
     sample_dir = os.path.join(args.experiment_dir, "sample")
     log_dir = os.path.join(args.experiment_dir, "logs")
+    start_time = time.time()
 
-    train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'), augment=True, bold=True, rotate=True, blur=True)
-    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
-    dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'), augment=True, bold=True, rotate=True, blur=True)
+    # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
+    # dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
     model = Zi2ZiModel(embedding_num=args.embedding_num, embedding_dim=args.embedding_dim,
                        Lconst_penalty=args.Lconst_penalty, Lcategory_penalty=args.Lcategory_penalty,
@@ -59,18 +67,29 @@ def main():
 
     start_epoch = args.resume if args.resume is not None else 0
     global_steps = 0
+
     for epoch in range(start_epoch, args.epoch):
-        for batch in dataloader:
+        # generate dataset every epoch so that different styles of saved char imgs can be trained.
+        train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
+                                       augment=True, bold=True, rotate=True, blur=True)
+        total_batches = math.ceil(len(train_dataset) / args.batch_size)
+        dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+        for bid, batch in enumerate(dataloader):
             model.set_input(batch[0], batch[2], batch[1])
-            model.optimize_parameters()
+            const_loss, l1_loss, category_loss, cheat_loss = model.optimize_parameters()
+            passed = time.time() - start_time
+            log_format = "Epoch: [%2d], [%4d/%4d] time: %4.2f, d_loss: %.5f, g_loss: %.5f, " + \
+                         "category_loss: %.5f, cheat_loss: %.5f, const_loss: %.5f, l1_loss: %.5f"
+            print(log_format % (epoch, bid, total_batches, passed, model.d_loss.item(), model.g_loss.item(),
+                                category_loss, cheat_loss, const_loss, l1_loss))
             if global_steps % args.checkpoint_steps == 0:
-                model.save_networks(epoch)
+                print("Checkpoint: save checkpoint step %d" % global_steps)
+                model.save_networks(global_steps)
             if global_steps % args.sample_steps == 0:
-                print("Step: %d" % global_steps)
-                print("G_loss: %.4f, D_loss: %.4f" % (model.g_loss.item(), model.d_loss.item()))
                 model.sample(batch, os.path.join(sample_dir, "sample_{}_{}".format(epoch, global_steps)))
             global_steps += 1
         model.update_lr()
+    model.save_networks(args.epoch)
 
 
 if __name__ == '__main__':
