@@ -112,7 +112,10 @@ class Zi2ZiModel:
         fake_AB = torch.cat([self.real_A, self.fake_B], 1)
         fake_D_logits, fake_category_logits = self.netD(fake_AB)
 
+        # encoding constant loss
+        # this loss assume that generated imaged and real image should reside in the same space and close to each other
         const_loss = self.Lconst_penalty * self.mse(self.encoded_real_A, self.encoded_fake_B)
+        # L1 loss between real and generated images
         l1_loss = self.L1_penalty * self.l1_loss(self.fake_B, self.real_B)
         fake_category_loss = self.Lcategory_penalty * self.category_loss(fake_category_logits, self.labels)
 

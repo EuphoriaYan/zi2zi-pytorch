@@ -5,5 +5,5 @@ python train.py \
 --gpu_ids cuda:0 \
 --epoch 100 \
 --batch_size 32 \
---sample_steps 500 \
---checkpoint_steps 1000
+--sample_steps 300 \
+--checkpoint_steps 500

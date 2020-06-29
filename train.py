@@ -30,7 +30,6 @@ parser.add_argument('--epoch', type=int, default=100, help='number of epoch')
 parser.add_argument('--batch_size', type=int, default=16, help='number of examples in batch')
 parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate for adam')
 parser.add_argument('--schedule', type=int, default=10, help='number of epochs to half learning rate')
-parser.add_argument('--resume', type=int, default=None, help='resume from previous training')
 parser.add_argument('--freeze_encoder', action='store_true',
                     help="freeze encoder weights during training")
 parser.add_argument('--fine_tune', type=str, default=None,
@@ -62,16 +61,13 @@ def main():
                        save_dir=checkpoint_dir, gpu_ids=args.gpu_ids)
     model.setup()
     model.print_networks(True)
-    if args.resume is not None:
-        model.load_networks(args.resume)
-
-    start_epoch = args.resume if args.resume is not None else 0
-    global_steps = 0
 
     val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
-    for epoch in range(start_epoch, args.epoch):
+    global_steps = 0
+
+    for epoch in range(args.epoch):
         # generate dataset every epoch so that different styles of saved char imgs can be trained.
         train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
                                        augment=True, bold=True, rotate=True, blur=True)
@@ -90,10 +86,12 @@ def main():
                 model.save_networks(global_steps)
             if global_steps % args.sample_steps == 0:
                 for vbid, val_batch in enumerate(val_dataloader):
-                    model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(vbid, global_steps)))
+                    model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(global_steps, vbid)))
             global_steps += 1
         if (epoch + 1) % args.schedule == 0:
             model.update_lr()
+    for vbid, val_batch in enumerate(val_dataloader):
+        model.sample(val_batch, os.path.join(sample_dir, "last_sample_{}_{}".format(global_steps, vbid)))
     model.save_networks(args.epoch)
 
 
