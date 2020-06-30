@@ -13,7 +13,8 @@ class Zi2ZiModel:
     def __init__(self, input_nc=3, embedding_num=40, embedding_dim=128,
                  ngf=64, ndf=64,
                  Lconst_penalty=15, Lcategory_penalty=1, L1_penalty=100,
-                 schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True):
+                 schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True,
+                 logger=None):
 
         if is_training:
             self.use_dropout = True
@@ -36,6 +37,8 @@ class Zi2ZiModel:
         self.ndf = ndf
         self.lr = lr
         self.is_training = is_training
+
+        self.logger = logger
 
     def setup(self):
 
@@ -133,7 +136,7 @@ class Zi2ZiModel:
             # minimum learning rate guarantee
             update_lr = max(update_lr, 0.0002)
             p['lr'] = update_lr
-            print("Decay net_D learning rate from %.5f to %.5f." % (current_lr, update_lr))
+            self.logger.warning("Decay net_D learning rate from %.5f to %.5f." % (current_lr, update_lr))
 
         for p in self.optimizer_G.param_groups:
             current_lr = p['lr']
@@ -141,7 +144,7 @@ class Zi2ZiModel:
             # minimum learning rate guarantee
             update_lr = max(update_lr, 0.0002)
             p['lr'] = update_lr
-            print("Decay net_G learning rate from %.5f to %.5f." % (current_lr, update_lr))
+            self.logger.warning("Decay net_G learning rate from %.5f to %.5f." % (current_lr, update_lr))
 
 
     def optimize_parameters(self):

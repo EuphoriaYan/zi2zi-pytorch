@@ -7,10 +7,7 @@ import torch
 import random
 import time
 import math
-
-randomSeed = 7777
-random.seed(randomSeed)
-torch.manual_seed(randomSeed)
+import logging
 
 parser = argparse.ArgumentParser(description='Infer')
 parser.add_argument('--experiment_dir', required=True,

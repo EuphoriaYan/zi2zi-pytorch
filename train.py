@@ -7,10 +7,7 @@ import torch
 import random
 import time
 import math
-
-randomSeed = 7777
-random.seed(randomSeed)
-torch.manual_seed(randomSeed)
+import logging
 
 parser = argparse.ArgumentParser(description='Train')
 parser.add_argument('--experiment_dir', required=True,
@@ -29,7 +26,7 @@ parser.add_argument('--embedding_dim', type=int, default=128, help="dimension fo
 parser.add_argument('--epoch', type=int, default=100, help='number of epoch')
 parser.add_argument('--batch_size', type=int, default=16, help='number of examples in batch')
 parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate for adam')
-parser.add_argument('--schedule', type=int, default=10, help='number of epochs to half learning rate')
+parser.add_argument('--schedule', type=int, default=20, help='number of epochs to half learning rate')
 parser.add_argument('--freeze_encoder', action='store_true',
                     help="freeze encoder weights during training")
 parser.add_argument('--fine_tune', type=str, default=None,
@@ -42,33 +39,45 @@ parser.add_argument('--checkpoint_steps', type=int, default=100,
                     help='number of batches in between two checkpoints')
 parser.add_argument('--flip_labels', action='store_true',
                     help='whether flip training data labels or not, in fine tuning')
+parser.add_argument('--random_seed', type=int, default=777,
+                    help='random seed for random and pytorch')
 
 
 def main():
     args = parser.parse_args()
+    random.seed(args.random_seed)
+    torch.manual_seed(args.random_seed)
+
     data_dir = os.path.join(args.experiment_dir, "data")
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
     sample_dir = os.path.join(args.experiment_dir, "sample")
     log_dir = os.path.join(args.experiment_dir, "logs")
+    handler = logging.FileHandler(os.path.join(log_dir, 'train.log'))
+    handler.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    logger.addHandler(handler)
     start_time = time.time()
 
-    # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'), augment=True, bold=True, rotate=True, blur=True)
+    # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
+    #                                augment=True, bold=True, rotate=True, blur=True)
     # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     # dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
     model = Zi2ZiModel(embedding_num=args.embedding_num, embedding_dim=args.embedding_dim,
                        Lconst_penalty=args.Lconst_penalty, Lcategory_penalty=args.Lcategory_penalty,
                        save_dir=checkpoint_dir, gpu_ids=args.gpu_ids)
+    model.logger = logger
     model.setup()
     model.print_networks(True)
 
+    # val dataset load only once, no shuffle
     val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     global_steps = 0
 
     for epoch in range(args.epoch):
-        # generate dataset every epoch so that different styles of saved char imgs can be trained.
+        # generate train dataset every epoch so that different styles of saved char imgs can be trained.
         train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
                                        augment=True, bold=True, rotate=True, blur=True)
         total_batches = math.ceil(len(train_dataset) / args.batch_size)
@@ -79,19 +88,21 @@ def main():
             passed = time.time() - start_time
             log_format = "Epoch: [%2d], [%4d/%4d] time: %4.2f, d_loss: %.5f, g_loss: %.5f, " + \
                          "category_loss: %.5f, cheat_loss: %.5f, const_loss: %.5f, l1_loss: %.5f"
-            print(log_format % (epoch, bid, total_batches, passed, model.d_loss.item(), model.g_loss.item(),
+            logger.info(log_format % (epoch, bid, total_batches, passed, model.d_loss.item(), model.g_loss.item(),
                                 category_loss, cheat_loss, const_loss, l1_loss))
             if global_steps % args.checkpoint_steps == 0:
-                print("Checkpoint: save checkpoint step %d" % global_steps)
                 model.save_networks(global_steps)
+                logger.info("Checkpoint: save checkpoint step %d" % global_steps)
             if global_steps % args.sample_steps == 0:
                 for vbid, val_batch in enumerate(val_dataloader):
                     model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(global_steps, vbid)))
+                logger.info("Sample: sample step %d" % global_steps)
             global_steps += 1
         if (epoch + 1) % args.schedule == 0:
             model.update_lr()
     for vbid, val_batch in enumerate(val_dataloader):
         model.sample(val_batch, os.path.join(sample_dir, "last_sample_{}_{}".format(global_steps, vbid)))
+        logger.info("Checkpoint: save checkpoint step %d" % global_steps)
     model.save_networks(args.epoch)
 
 
