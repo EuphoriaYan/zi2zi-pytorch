@@ -23,7 +23,7 @@ parser.add_argument('--Lconst_penalty', type=int, default=15, help='weight for c
 # parser.add_argument('--Ltv_penalty', dest='Ltv_penalty', type=float, default=0.0, help='weight for tv loss')
 parser.add_argument('--Lcategory_penalty', type=float, default=1.0,
                     help='weight for category loss')
-parser.add_argument('--embedding_num', type=int, default=41,
+parser.add_argument('--embedding_num', type=int, default=40,
                     help="number for distinct embeddings")
 parser.add_argument('--embedding_dim', type=int, default=128, help="dimension for embedding")
 parser.add_argument('--batch_size', type=int, default=16, help='number of examples in batch')
