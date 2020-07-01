@@ -140,7 +140,7 @@ python train.py --experiment_dir=experiment
 ```
 **schedule** here means in between how many epochs, the learning rate will decay by half. The train command will create **sample,logs,checkpoint** directory under **experiment_dir** if non-existed, where you can check and manage the progress of your training.
 
-During the training, you will find two or several checkpoint files **N_net_G.pth** and **N_net_D.pth** , in which N means epoch, in the checkpoint directory. You can delete useless checkpoint to save your disk space.
+During the training, you will find two or several checkpoint files **N_net_G.pth** and **N_net_D.pth** , in which N means steps, in the checkpoint directory. You can delete useless checkpoint to save your disk space.
 
 ### Infer
 After training is done, run the below command to infer test data:
@@ -153,7 +153,7 @@ python infer.py --model_dir=checkpoint_dir
                 --obj_pth=obj_path
 ```
 
-For example, if you want use the model **100_net_G.pth** and **100_net_D.pth** , which trained with 100 epoch, you should use --resume=100. 
+For example, if you want use the model **100_net_G.pth** and **100_net_D.pth** , which trained with 100 steps, you should use --resume=100. 
 
 This model can't supply choose target font type id or interpolation yet. I will update later.
 
