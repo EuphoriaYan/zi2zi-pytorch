@@ -7,7 +7,6 @@ import torch
 import random
 import time
 import math
-import logging
 
 parser = argparse.ArgumentParser(description='Infer')
 parser.add_argument('--experiment_dir', required=True,

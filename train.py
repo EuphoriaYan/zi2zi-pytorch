@@ -7,7 +7,6 @@ import torch
 import random
 import time
 import math
-import logging
 
 parser = argparse.ArgumentParser(description='Train')
 parser.add_argument('--experiment_dir', required=True,
@@ -52,10 +51,6 @@ def main():
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
     sample_dir = os.path.join(args.experiment_dir, "sample")
     log_dir = os.path.join(args.experiment_dir, "logs")
-    handler = logging.FileHandler(os.path.join(log_dir, 'train.log'))
-    handler.setLevel(logging.INFO)
-    logger = logging.getLogger()
-    logger.addHandler(handler)
     start_time = time.time()
 
     # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
@@ -66,7 +61,6 @@ def main():
     model = Zi2ZiModel(embedding_num=args.embedding_num, embedding_dim=args.embedding_dim,
                        Lconst_penalty=args.Lconst_penalty, Lcategory_penalty=args.Lcategory_penalty,
                        save_dir=checkpoint_dir, gpu_ids=args.gpu_ids)
-    model.logger = logger
     model.setup()
     model.print_networks(True)
 
@@ -88,21 +82,21 @@ def main():
             passed = time.time() - start_time
             log_format = "Epoch: [%2d], [%4d/%4d] time: %4.2f, d_loss: %.5f, g_loss: %.5f, " + \
                          "category_loss: %.5f, cheat_loss: %.5f, const_loss: %.5f, l1_loss: %.5f"
-            logger.info(log_format % (epoch, bid, total_batches, passed, model.d_loss.item(), model.g_loss.item(),
+            print(log_format % (epoch, bid, total_batches, passed, model.d_loss.item(), model.g_loss.item(),
                                 category_loss, cheat_loss, const_loss, l1_loss))
             if global_steps % args.checkpoint_steps == 0:
                 model.save_networks(global_steps)
-                logger.info("Checkpoint: save checkpoint step %d" % global_steps)
+                print("Checkpoint: save checkpoint step %d" % global_steps)
             if global_steps % args.sample_steps == 0:
                 for vbid, val_batch in enumerate(val_dataloader):
                     model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(global_steps, vbid)))
-                logger.info("Sample: sample step %d" % global_steps)
+                print("Sample: sample step %d" % global_steps)
             global_steps += 1
         if (epoch + 1) % args.schedule == 0:
             model.update_lr()
     for vbid, val_batch in enumerate(val_dataloader):
         model.sample(val_batch, os.path.join(sample_dir, "last_sample_{}_{}".format(global_steps, vbid)))
-        logger.info("Checkpoint: save checkpoint step %d" % global_steps)
+        print("Checkpoint: save checkpoint step %d" % global_steps)
     model.save_networks(args.epoch)
 
 
