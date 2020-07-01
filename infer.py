@@ -24,7 +24,6 @@ parser.add_argument('--embedding_num', type=int, default=40,
 parser.add_argument('--embedding_dim', type=int, default=128, help="dimension for embedding")
 parser.add_argument('--batch_size', type=int, default=16, help='number of examples in batch')
 parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate for adam')
-parser.add_argument('--schedule', type=int, default=10, help='number of epochs to half learning rate')
 parser.add_argument('--resume', type=int, default=None, help='resume from previous training')
 parser.add_argument('--obj_path', type=str, default='./experiment/data/val.obj', help='the obj file you infer')
 
