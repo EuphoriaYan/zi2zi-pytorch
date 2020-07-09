@@ -9,7 +9,7 @@ import math
 class Discriminator(nn.Module):
     """Defines a PatchGAN discriminator"""
 
-    def __init__(self, input_nc, embedding_num, ndf=64, norm_layer=nn.BatchNorm2d, image_size=256):
+    def __init__(self, input_nc, embedding_num, ndf=64, norm_layer=nn.BatchNorm2d, image_size=128):
         """Construct a PatchGAN discriminator
         Parameters:
             input_nc (int)  -- the number of channels in input images
@@ -59,7 +59,8 @@ class Discriminator(nn.Module):
         image_size = math.ceil(image_size / 2)
         image_size = math.ceil(image_size / 2)
         image_size = math.ceil(image_size / 2)
-        # 524288 = 512(num_of_channels) * (w/2/2/2) * (h/2/2/2) = 2^19
+        # 524288 = 512(num_of_channels) * (w/2/2/2) * (h/2/2/2) = 2^19  (w=h=256)
+        # 131072 = 512(num_of_channels) * (w/2/2/2) * (h/2/2/2) = 2^17  (w=h=128)
         final_features = final_channels * image_size * image_size
         self.binary = nn.Linear(final_features, 1)
         self.catagory = nn.Linear(final_features, embedding_num)

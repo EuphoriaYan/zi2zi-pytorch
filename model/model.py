@@ -13,7 +13,8 @@ class Zi2ZiModel:
     def __init__(self, input_nc=3, embedding_num=40, embedding_dim=128,
                  ngf=64, ndf=64,
                  Lconst_penalty=15, Lcategory_penalty=1, L1_penalty=100,
-                 schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True):
+                 schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True,
+                 image_size=128):
 
         if is_training:
             self.use_dropout = True
@@ -36,13 +37,15 @@ class Zi2ZiModel:
         self.ndf = ndf
         self.lr = lr
         self.is_training = is_training
+        self.image_size = image_size
 
     def setup(self):
 
         self.netG = UNetGenerator(input_nc=self.input_nc, embedding_num=self.embedding_num,
                                   embedding_dim=self.embedding_dim,
                                   ngf=self.ngf, use_dropout=self.use_dropout)
-        self.netD = Discriminator(input_nc=2 * self.input_nc, embedding_num=self.embedding_num, ndf=self.ndf)
+        self.netD = Discriminator(input_nc=2 * self.input_nc, embedding_num=self.embedding_num,
+                                  ndf=self.ndf, image_size=self.image_size)
 
         init_net(self.netG, gpu_ids=self.gpu_ids)
         init_net(self.netD, gpu_ids=self.gpu_ids)
