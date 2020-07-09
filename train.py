@@ -97,7 +97,7 @@ def main():
     for vbid, val_batch in enumerate(val_dataloader):
         model.sample(val_batch, os.path.join(sample_dir, "last_sample_{}_{}".format(global_steps, vbid)))
         print("Checkpoint: save checkpoint step %d" % global_steps)
-    model.save_networks(args.epoch)
+    model.save_networks(global_steps)
 
 
 if __name__ == '__main__':
