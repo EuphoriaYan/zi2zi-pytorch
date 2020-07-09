@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-
 import argparse
 import glob
 import os
 import pickle
 import random
+from tqdm import tqdm
 
 
 def pickle_examples(paths, train_path, val_path, train_val_split=0.1):
@@ -16,10 +14,10 @@ def pickle_examples(paths, train_path, val_path, train_val_split=0.1):
     """
     with open(train_path, 'wb') as ft:
         with open(val_path, 'wb') as fv:
-            for p in paths:
+            for p in tqdm(paths):
                 label = int(os.path.basename(p).split("_")[0])
                 with open(p, 'rb') as f:
-                    print("img %s" % p, label)
+                    # print("img %s" % p, label)
                     img_bytes = f.read()
                     r = random.random()
                     example = (label, img_bytes)

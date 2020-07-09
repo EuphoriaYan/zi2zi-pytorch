@@ -9,6 +9,7 @@ from PIL import ImageFont
 import json
 import collections
 import re
+from tqdm import tqdm
 
 CN_CHARSET = None
 CN_T_CHARSET = None
@@ -108,7 +109,7 @@ def font2img2(src, dst, char_size, canvas_size,
     count = 0
     pattern = re.compile('(.)~(.+)~(\d+)')
 
-    for c in os.listdir(dst):
+    for c in tqdm(os.listdir(dst)):
         if count == sample_count:
             break
         res = re.match(pattern, c)
@@ -119,8 +120,6 @@ def font2img2(src, dst, char_size, canvas_size,
         if e:
             e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
             count += 1
-            if count % 500 == 0:
-                print("processed %d chars" % count)
 
 
 load_global_charset()
