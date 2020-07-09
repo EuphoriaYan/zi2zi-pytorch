@@ -39,7 +39,7 @@ def main(jpg_path, convert_path):
             continue
         image = image.convert('L')
         image = convert_square_pad(image)
-        image = image.resize((128, 128))
+        image = image.resize((128, 128), Image.ANTIALIAS)
         image.save(os.path.join(convert_path, jpg_file))
     return
 
