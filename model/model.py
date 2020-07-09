@@ -14,7 +14,7 @@ class Zi2ZiModel:
                  ngf=64, ndf=64,
                  Lconst_penalty=15, Lcategory_penalty=1, L1_penalty=100,
                  schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True,
-                 image_size=128):
+                 image_size=256):
 
         if is_training:
             self.use_dropout = True
