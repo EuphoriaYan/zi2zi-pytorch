@@ -26,6 +26,7 @@ parser.add_argument('--batch_size', type=int, default=16, help='number of exampl
 parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate for adam')
 parser.add_argument('--resume', type=int, default=None, help='resume from previous training')
 parser.add_argument('--obj_path', type=str, default='./experiment/data/val.obj', help='the obj file you infer')
+parser.add_argument('--input_nc', type=int, default=1)
 
 
 def main():
@@ -39,15 +40,22 @@ def main():
     # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     # dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
-    model = Zi2ZiModel(embedding_num=args.embedding_num, embedding_dim=args.embedding_dim,
-                       Lconst_penalty=args.Lconst_penalty, Lcategory_penalty=args.Lcategory_penalty,
-                       save_dir=checkpoint_dir, gpu_ids=args.gpu_ids, is_training=False)
+    model = Zi2ZiModel(
+        input_nc=args.input_nc,
+        embedding_num=args.embedding_num,
+        embedding_dim=args.embedding_dim,
+        Lconst_penalty=args.Lconst_penalty,
+        Lcategory_penalty=args.Lcategory_penalty,
+        save_dir=checkpoint_dir,
+        gpu_ids=args.gpu_ids,
+        is_training=False
+    )
     model.setup()
     model.print_networks(True)
     model.load_networks(args.resume)
 
     global_steps = 0
-    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
+    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'), input_nc=args.input_nc)
     dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
     for batch in dataloader:
         model.set_input(batch[0], batch[2], batch[1])

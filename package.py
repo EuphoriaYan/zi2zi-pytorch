@@ -17,7 +17,6 @@ def pickle_examples(paths, train_path, val_path, train_val_split=0.1):
             for p in tqdm(paths):
                 label = int(os.path.basename(p).split("_")[0])
                 with open(p, 'rb') as f:
-                    # print("img %s" % p, label)
                     img_bytes = f.read()
                     r = random.random()
                     example = (label, img_bytes)

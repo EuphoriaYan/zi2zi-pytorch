@@ -24,14 +24,17 @@ class Discriminator(nn.Module):
 
         # as tf implement, kernel_size = 5, use "SAME" padding, so we should use kw = 5 and padw = 2
         # kw = 4
-        kw = 5
         # padw = 1
+        kw = 5
         padw = 2
-        sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nn.LeakyReLU(0.2, True)]
+        sequence = [
+            nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw),
+            nn.LeakyReLU(0.2, True)
+        ]
         nf_mult = 1
         nf_mult_prev = 1
         # in tf implement, there are only 3 conv2d layers with stride=2.
-        # for n in range(1, 4):  # gradually increase the number of filters
+        # for n in range(1, 4):
         for n in range(1, 3):  # gradually increase the number of filters
             nf_mult_prev = nf_mult
             nf_mult = min(2 ** n, 8)
@@ -51,10 +54,11 @@ class Discriminator(nn.Module):
 
         # Maybe useful? Experiment need to be done later.
         # output 1 channel prediction map
-        # sequence += [nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]
+        sequence += [nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]
 
         self.model = nn.Sequential(*sequence)
-        final_channels = ndf * nf_mult
+        # final_channels = ndf * nf_mult
+        final_channels = 1
         # use stride of 2 conv2 layer 3 times, cal the image_size
         image_size = math.ceil(image_size / 2)
         image_size = math.ceil(image_size / 2)

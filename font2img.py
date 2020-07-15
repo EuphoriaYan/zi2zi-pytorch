@@ -54,6 +54,8 @@ def draw_example2(ch, src_font, dst_img, canvas_size, x_offset, y_offset):
     example_img = Image.new("RGB", (canvas_size * 2, canvas_size), (255, 255, 255))
     example_img.paste(dst_img, (0, 0))
     example_img.paste(src_img, (canvas_size, 0))
+    # convert to gray img
+    example_img = example_img.convert('L')
     return example_img
 
 
@@ -113,10 +115,12 @@ def font2img2(src, dst, char_size, canvas_size,
         if count == sample_count:
             break
         res = re.match(pattern, c)
-        label = writer_dict[res[2]]
+        ch = res[1]
+        writter = res[2]
+        label = writer_dict[writter]
         img_path = os.path.join(dst, c)
         dst_img = Image.open(img_path)
-        e = draw_example2(res[1], src_font, dst_img, canvas_size, x_offset, y_offset)
+        e = draw_example2(ch, src_font, dst_img, canvas_size, x_offset, y_offset)
         if e:
             e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
             count += 1
@@ -155,7 +159,9 @@ if __name__ == "__main__":
         font2img2(args.src_font, args.dst_imgs, args.char_size,
                   args.canvas_size, args.x_offset, args.y_offset,
                   args.sample_count, args.sample_dir)
-    if args.dst_font:
+    elif args.dst_font:
         font2img(args.src_font, args.dst_font, charset, args.char_size,
                  args.canvas_size, args.x_offset, args.y_offset,
                  args.sample_count, args.sample_dir, args.label, args.filter)
+    else:
+        raise ValueError('One of dst_imgs or dst_font should be filled.')

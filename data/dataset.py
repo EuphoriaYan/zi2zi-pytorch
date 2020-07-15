@@ -14,10 +14,16 @@ from utils.bytesIO import PickledImageProvider, bytes_to_file
 
 
 class DatasetFromObj(data.Dataset):
-    def __init__(self, obj_path, augment=False, bold=False, rotate=False, blur=False):
+    def __init__(self, obj_path, input_nc=3, augment=False, bold=False, rotate=False, blur=False):
         super(DatasetFromObj, self).__init__()
         self.image_provider = PickledImageProvider(obj_path)
-        self.transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        self.input_nc = input_nc
+        if self.input_nc == 1:
+            self.transform = transforms.Normalize(0.5, 0.5)
+        elif self.input_nc == 3:
+            self.transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        else:
+            raise ValueError('input_nc should be 1 or 3')
         self.augment = augment
         self.bold = bold
         self.rotate = rotate
@@ -47,9 +53,9 @@ class DatasetFromObj(data.Dataset):
                 # to be shifted
                 w, h = img_A.size
                 if self.bold:
-                    multiplier = random.uniform(1.00, 1.40)
+                    multiplier = random.uniform(1.0, 1.2)
                 else:
-                    multiplier = random.uniform(1.00, 1.20)
+                    multiplier = random.uniform(1.0, 1.1)
                 # add an eps to prevent cropping issue
                 nw = int(multiplier * w) + 1
                 nh = int(multiplier * h) + 1
@@ -67,8 +73,12 @@ class DatasetFromObj(data.Dataset):
                 if self.rotate and random.random() > 0.9:
                     angle_list = [0, 180]
                     random_angle = random.choice(angle_list)
-                    img_A = img_A.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
-                    img_B = img_B.rotate(random_angle, resample=Image.BILINEAR, fillcolor=(255, 255, 255))
+                    if self.input_nc == 3:
+                        fill_color = (255, 255, 255)
+                    else:
+                        fill_color = 255
+                    img_A = img_A.rotate(random_angle, resample=Image.BILINEAR, fillcolor=fill_color)
+                    img_B = img_B.rotate(random_angle, resample=Image.BILINEAR, fillcolor=fill_color)
 
                 if self.blur and random.random() > 0.8:
                     sigma_list = [1, 1.5, 2]

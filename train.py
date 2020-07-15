@@ -40,6 +40,8 @@ parser.add_argument('--flip_labels', action='store_true',
                     help='whether flip training data labels or not, in fine tuning')
 parser.add_argument('--random_seed', type=int, default=777,
                     help='random seed for random and pytorch')
+parser.add_argument('--input_nc', type=int, default=3,
+                    help='number of input images channels')
 
 
 def main():
@@ -58,22 +60,34 @@ def main():
     # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     # dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
-    model = Zi2ZiModel(embedding_num=args.embedding_num, embedding_dim=args.embedding_dim,
-                       Lconst_penalty=args.Lconst_penalty, Lcategory_penalty=args.Lcategory_penalty,
-                       save_dir=checkpoint_dir, gpu_ids=args.gpu_ids)
+    model = Zi2ZiModel(
+        input_nc=args.input_nc,
+        embedding_num=args.embedding_num,
+        embedding_dim=args.embedding_dim,
+        Lconst_penalty=args.Lconst_penalty,
+        Lcategory_penalty=args.Lcategory_penalty,
+        save_dir=checkpoint_dir,
+        gpu_ids=args.gpu_ids
+    )
     model.setup()
     model.print_networks(True)
 
     # val dataset load only once, no shuffle
-    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
+    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'), input_nc=args.input_nc)
     val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     global_steps = 0
 
     for epoch in range(args.epoch):
         # generate train dataset every epoch so that different styles of saved char imgs can be trained.
-        train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
-                                       augment=True, bold=True, rotate=True, blur=True)
+        train_dataset = DatasetFromObj(
+            os.path.join(data_dir, 'train.obj'),
+            input_nc=args.input_nc,
+            augment=True,
+            bold=True,
+            rotate=False,
+            blur=True,
+        )
         total_batches = math.ceil(len(train_dataset) / args.batch_size)
         dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         for bid, batch in enumerate(dataloader):
