@@ -41,11 +41,20 @@ class Zi2ZiModel:
 
     def setup(self):
 
-        self.netG = UNetGenerator(input_nc=self.input_nc, embedding_num=self.embedding_num,
-                                  embedding_dim=self.embedding_dim,
-                                  ngf=self.ngf, use_dropout=self.use_dropout)
-        self.netD = Discriminator(input_nc=2 * self.input_nc, embedding_num=self.embedding_num,
-                                  ndf=self.ndf, image_size=self.image_size)
+        self.netG = UNetGenerator(
+            input_nc=self.input_nc,
+            output_nc=self.input_nc,
+            embedding_num=self.embedding_num,
+            embedding_dim=self.embedding_dim,
+            ngf=self.ngf,
+            use_dropout=self.use_dropout
+        )
+        self.netD = Discriminator(
+            input_nc=2 * self.input_nc,
+            embedding_num=self.embedding_num,
+            ndf=self.ndf,
+            image_size=self.image_size
+        )
 
         init_net(self.netG, gpu_ids=self.gpu_ids)
         init_net(self.netD, gpu_ids=self.gpu_ids)
