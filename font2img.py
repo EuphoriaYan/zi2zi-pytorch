@@ -45,6 +45,8 @@ def draw_example(ch, src_font, dst_font, canvas_size, x_offset, y_offset, filter
     example_img = Image.new("RGB", (canvas_size * 2, canvas_size), (255, 255, 255))
     example_img.paste(dst_img, (0, 0))
     example_img.paste(src_img, (canvas_size, 0))
+    # convert to gray img
+    example_img = example_img.convert('L')
     return example_img
 
 
