@@ -84,7 +84,7 @@ def main():
             os.path.join(data_dir, 'train.obj'),
             input_nc=args.input_nc,
             augment=True,
-            bold=True,
+            bold=False,
             rotate=False,
             blur=True,
         )

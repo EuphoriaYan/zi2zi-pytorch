@@ -55,7 +55,7 @@ class DatasetFromObj(data.Dataset):
                 if self.bold:
                     multiplier = random.uniform(1.0, 1.2)
                 else:
-                    multiplier = random.uniform(1.0, 1.1)
+                    multiplier = random.uniform(1.0, 1.05)
                 # add an eps to prevent cropping issue
                 nw = int(multiplier * w) + 1
                 nh = int(multiplier * h) + 1
