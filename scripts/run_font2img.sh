@@ -7,4 +7,5 @@ python font2img.py \
 --src_font ${src_font} \
 --dst_imgs ${dst_imgs} \
 --sample_count 220000 \
---sample_dir ./samples
+--sample_dir ./samples \
+--mode font2imgs
