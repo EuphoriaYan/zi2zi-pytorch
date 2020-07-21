@@ -32,6 +32,7 @@ python font2img.py --src_font=src.ttf
                    --label=0
                    --filter
                    --shuffle
+                   --mode=font2font
 ```
 Four default charsets are offered: CN, CN_T(traditional), JP, KR. You can also point it to a one line file, it will generate the images of the characters in it. Note, **filter** option is highly recommended, it will pre sample some characters and filter all the images that have the same hash, usually indicating that character is missing. **label** indicating index in the category embeddings that this font associated with, default to 0.
 
@@ -54,6 +55,7 @@ python font2img.py --src_font=a.ttf
                    --label=0
                    --filter
                    --shuffle
+                   --mode=font2font
 ```
 
 
@@ -67,6 +69,7 @@ python font2img.py --src_font=a.ttf
                    --label=1
                    --filter
                    --shuffle
+                   --mode=font2font
 ```
 
 
@@ -80,6 +83,7 @@ python font2img.py --src_font=a.ttf
                    --label=2
                    --filter
                    --shuffle
+                   --mode=font2font
 ```
 
 Watch out the --label is different.
@@ -93,6 +97,7 @@ python font2img.py --src_font=src.ttf
                    --sample_count=len(infer.txt)
                    --sample_dir=dir
                    --label=0
+                   --mode=font2font
 ```
 
 infer.txt should be a one line file. 
