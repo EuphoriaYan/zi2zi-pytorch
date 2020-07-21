@@ -21,6 +21,8 @@ We use the environment below:
 ### Preprocess
 To avoid IO bottleneck, preprocessing is necessary to pickle your data into binary and persist in memory during training.
 
+#### Font2Font
+
 First run the below command to get the font images:
 
 ```sh
@@ -101,6 +103,30 @@ python font2img.py --src_font=src.ttf
 ```
 
 infer.txt should be a one line file. 
+
+#### Font2Imgs
+
+```sh
+python font2img.py --src_font=src.ttf
+                   --dst_imgs=target_path
+                   --sample_count=1000
+                   --sample_dir=dir
+                   --mode=font2imgs
+```
+
+Refer to `font2imgs` function (font2img.py, line 114) for more details. Also you should change some codes or regular expressions before your own experiments.
+
+#### Imgs2Imgs
+
+```sh
+python font2img.py --src_imgs=source_path
+                   --dst_imgs=target_path
+                   --sample_count=1000
+                   --sample_dir=dir
+                   --mode=imgs2imgs
+```
+
+Refer to `imgs2imgs` function (font2img.py, line 146) for more details. Also you should change some codes or regular expressions before your own experiments.
 
 ### Package
 
