@@ -114,7 +114,7 @@ python font2img.py --src_font=src.ttf
                    --mode=font2imgs
 ```
 
-Refer to `font2imgs` function (font2img.py, line 114) for more details. Also you should change some codes or regular expressions before your own experiments.
+Refer to `font2imgs` function (**font2img.py**, line 114) for more details. Also you should change some codes or regular expressions before your own experiments.
 
 #### Imgs2Imgs
 
@@ -126,7 +126,7 @@ python font2img.py --src_imgs=source_path
                    --mode=imgs2imgs
 ```
 
-Refer to `imgs2imgs` function (font2img.py, line 146) for more details. Also you should change some codes or regular expressions before your own experiments.
+Refer to `imgs2imgs` function (**font2img.py**, line 146) for more details. Also you should change some codes or regular expressions before your own experiments.
 
 ### Package
 
