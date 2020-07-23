@@ -2,6 +2,30 @@
 
 A zi2zi pytorch implement based on [zi2zi-pytorch](https://github.com/xuan-li/zi2zi-pytorch). Fix some bugs so it can have the same network and performance as the [zi2zi](https://github.com/kaonashi-tyc/zi2zi). Also, integrate some improvement from [Font2font](https://github.com/jasonlo0509/Font2Font).
 
+
+
+![新楷体——行書-王壯為](.\results\新楷体——行書-王壯為.png)
+
+新楷体——行書-王壯為
+
+
+
+![新楷体——隸書-何紹基](.\results\新楷体——隸書-何紹基.png)
+
+新楷体——隸書-何紹基
+
+
+
+![新楷体——隸書-趙之謙](.\results\新楷体——隸書-趙之謙.png)
+
+新楷体——隸書-趙之謙
+
+
+
+![新楷体——美工-瘦顏體](.\results\新楷体——美工-瘦顏體.png)
+
+新楷体——美工-瘦顏體
+
 ## How to Use
 ### Step Zero
 Download tons of fonts as you please
@@ -177,16 +201,44 @@ During the training, you will find two or several checkpoint files **N_net_G.pth
 After training is done, run the below command to infer test data:
 
 ```sh
-python infer.py --model_dir=checkpoint_dir
-                --batch_size=32
-                --gpu_ids=cuda:0 
-                --resume=the saved model you select
-                --obj_pth=obj_path
+python infer.py --experiment_dir experiment
+                --batch_size 32
+                --gpu_ids cuda:0 
+                --resume the saved model you select
+                --obj_pth obj_path
 ```
 
-For example, if you want use the model **100_net_G.pth** and **100_net_D.pth** , which trained with 100 steps, you should use --resume=100. 
+For example, if you want use the model **100_net_G.pth** and **100_net_D.pth** , which trained with 100 steps, you should use **--resume=100**. 
 
-This model can't supply choose target font type id or interpolation yet. I will update later.
+However, if you want to infer on some your own text and **DON'T want to generate pickle object file**,  use the command below:
+
+```sh
+python infer.py --experiment_dir experiment
+				--gpu_ids cuda:0
+				--batch_size 32
+				--resume the saved model you select
+				--from_txt
+				--src_txt 大威天龙大罗法咒世尊地藏波若诸佛
+				--label 3
+```
+
+**src_txt** is the text you want to infer. **label** is the type of target character you want.
+
+In our pre-trained model, the mapping relationships between **label** and writers are below:
+
+```python
+writer_dict = {
+        '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
+        '歐陽詢-皇甫誕': 7, '沈尹默': 8, '美工-崩雲體': 9, '美工-瘦顏體': 10, '虞世南': 11, '行書-傅山': 12, '行書-王壯為': 13,
+        '行書-王鐸': 14, '行書-米芾': 15, '行書-趙孟頫': 16, '行書-鄭板橋': 17, '行書-集字聖教序': 18, '褚遂良': 19, '趙之謙': 20,
+        '趙孟頫三門記體': 21, '隸書-伊秉綬': 22, '隸書-何紹基': 23, '隸書-鄧石如': 24, '隸書-金農': 25,  '顏真卿-顏勤禮碑': 26,
+        '顏真卿多寶塔體': 27, '魏碑': 28
+    }
+```
+
+We will release our pre-trained model as soon as possible.
+
+
 
 ## Acknowledgements
 Code derived and rehashed from:
