@@ -214,12 +214,12 @@ However, if you want to infer on some your own text and **DON'T want to generate
 
 ```sh
 python infer.py --experiment_dir experiment
-				--gpu_ids cuda:0
-				--batch_size 32
-				--resume the saved model you select
-				--from_txt
-				--src_txt 大威天龙大罗法咒世尊地藏波若诸佛
-				--label 3
+                --gpu_ids cuda:0
+                --batch_size 32
+                --resume the saved model you select
+                --from_txt
+                --src_txt 大威天龙大罗法咒世尊地藏波若诸佛
+                --label 3
 ```
 
 **src_txt** is the text you want to infer. **label** is the type of target character you want.
