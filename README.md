@@ -6,8 +6,8 @@ A zi2zi pytorch implement based on [zi2zi-pytorch](https://github.com/xuan-li/zi
 
 ![新楷体——行書-王壯為](results/新楷体——行書-王壯為.png)
 
-新楷体——行書-王壯為
-
+新楷体——行書-王壯為  
+"**諸**" is not very good.
 
 
 ![新楷体——隸書-何紹基](results/新楷体——隸書-何紹基.png)
