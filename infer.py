@@ -32,7 +32,7 @@ parser.add_argument('--obj_path', type=str, default='./experiment/data/val.obj',
 parser.add_argument('--input_nc', type=int, default=1)
 
 parser.add_argument('--from_txt', action='store_true')
-parser.add_argument('--src_txt', type=str, default='大威天龙大罗法咒世尊地藏波若诸佛')
+parser.add_argument('--src_txt', type=str, default='大威天龍大羅法咒世尊地藏波若諸佛')
 parser.add_argument('--canvas_size', type=int, default=256)
 parser.add_argument('--char_size', type=int, default=256)
 parser.add_argument('--label', type=int, default=0)
