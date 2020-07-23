@@ -4,25 +4,25 @@ A zi2zi pytorch implement based on [zi2zi-pytorch](https://github.com/xuan-li/zi
 
 
 
-![新楷体——行書-王壯為](.\results\新楷体——行書-王壯為.png)
+![新楷体——行書-王壯為](results/新楷体——行書-王壯為.png)
 
 新楷体——行書-王壯為
 
 
 
-![新楷体——隸書-何紹基](.\results\新楷体——隸書-何紹基.png)
+![新楷体——隸書-何紹基](results/新楷体——隸書-何紹基.png)
 
 新楷体——隸書-何紹基
 
 
 
-![新楷体——隸書-趙之謙](.\results\新楷体——隸書-趙之謙.png)
+![新楷体——隸書-趙之謙](results/新楷体——隸書-趙之謙.png)
 
 新楷体——隸書-趙之謙
 
 
 
-![新楷体——美工-瘦顏體](.\results\新楷体——美工-瘦顏體.png)
+![新楷体——美工-瘦顏體](results/新楷体——美工-瘦顏體.png)
 
 新楷体——美工-瘦顏體
 
