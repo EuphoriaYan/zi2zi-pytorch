@@ -10,6 +10,16 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import torchvision.transforms as transforms
+from torchvision.utils import save_image, make_grid
+
+writer_dict = {
+        '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
+        '歐陽詢-皇甫誕': 7, '沈尹默': 8, '美工-崩雲體': 9, '美工-瘦顏體': 10, '虞世南': 11, '行書-傅山': 12, '行書-王壯為': 13,
+        '行書-王鐸': 14, '行書-米芾': 15, '行書-趙孟頫': 16, '行書-鄭板橋': 17, '行書-集字聖教序': 18, '褚遂良': 19, '趙之謙': 20,
+        '趙孟頫三門記體': 21, '隸書-伊秉綬': 22, '隸書-何紹基': 23, '隸書-鄧石如': 24, '隸書-金農': 25,  '顏真卿-顏勤禮碑': 26,
+        '顏真卿多寶塔體': 27, '魏碑': 28
+    }
+
 
 parser = argparse.ArgumentParser(description='Infer')
 parser.add_argument('--experiment_dir', required=True,
@@ -35,6 +45,7 @@ parser.add_argument('--from_txt', action='store_true')
 parser.add_argument('--src_txt', type=str, default='大威天龍大羅法咒世尊地藏波若諸佛')
 parser.add_argument('--canvas_size', type=int, default=256)
 parser.add_argument('--char_size', type=int, default=256)
+parser.add_argument('--run_all_label', action='store_true')
 parser.add_argument('--label', type=int, default=0)
 parser.add_argument('--src_font', type=str, default='charset/gbk/方正新楷体_GBK(完整).TTF')
 
@@ -75,7 +86,7 @@ def main():
     if args.from_txt:
         src = args.src_txt
         font = ImageFont.truetype(args.src_font, size=args.char_size)
-        img_list =[transforms.Normalize(0.5, 0.5)(
+        img_list = [transforms.Normalize(0.5, 0.5)(
             transforms.ToTensor()(
                 draw_single_char(ch, font, args.canvas_size)
             )
@@ -95,10 +106,20 @@ def main():
     global_steps = 0
 
     for batch in dataloader:
-        model.set_input(batch[0], batch[2], batch[1])
-        # model.optimize_parameters()
-        model.sample(batch, os.path.join(infer_dir, "infer_{}".format(global_steps)))
-        global_steps += 1
+        if args.run_all_label:
+            global writer_dict
+            writer_dict_inv = {v: k for k, v in writer_dict.items()}
+            for label_idx in range(29):
+                model.set_input(torch.ones_like(batch[0]) * label_idx, batch[2], batch[1])
+                model.forward()
+                tensor_to_plot = torch.cat([model.fake_B, model.real_B], 3)
+                # img = vutils.make_grid(tensor_to_plot)
+                save_image(tensor_to_plot, os.path.join(infer_dir, "infer_{}".format(writer_dict_inv[label_idx]) + "_construct.png"))
+        else:
+            # model.set_input(batch[0], batch[2], batch[1])
+            # model.optimize_parameters()
+            model.sample(batch, os.path.join(infer_dir, "infer_{}".format(global_steps)))
+            global_steps += 1
 
 
 if __name__ == '__main__':

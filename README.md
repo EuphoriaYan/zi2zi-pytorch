@@ -6,7 +6,8 @@ A zi2zi pytorch implement based on [zi2zi-pytorch](https://github.com/xuan-li/zi
 
 ![新楷体——行書-王壯為](results/新楷体——行書-王壯為.png)
 
-新楷体——行書-王壯為  
+新楷体——行書-王壯為
+
 "**諸**" is not very good.
 
 
@@ -112,21 +113,21 @@ python font2img.py --src_font=a.ttf
                    --mode=font2font
 ```
 
-Watch out the --label is different.
+Watch out the **--label** is different.
 
-If you want infer the network with specific text, run the below command. 
+If you want validate the network with specific text, run the below command. 
 
 ```sh
 python font2img.py --src_font=src.ttf
                    --dst_font=trg.otf
-                   --charset=infer.txt
+                   --charset=valid.txt
                    --sample_count=len(infer.txt)
                    --sample_dir=dir
                    --label=0
                    --mode=font2font
 ```
 
-infer.txt should be a one line file. 
+**valid.txt** should be a one line file. 
 
 #### Font2Imgs
 
@@ -162,9 +163,9 @@ python package.py --dir=image_directories
                   --split_ratio=[0,1]
 ```
 
-After running this, you will find two objects **train.obj** and **val.obj** under the save_dir for training and validation, respectively.
+After running this, you will find two objects **train.obj** and **val.obj** under the **--save_dir** for training and validation, respectively.
 
-If you want infer the network with specific text, run the below command. 
+If you want infer/validate the network with specific text, run the below command. 
 
 ```sh
 python package.py --dir=image_directories
@@ -172,7 +173,7 @@ python package.py --dir=image_directories
                   --split_ratio=0
 ```
 
-Watch out that split_ratio=0, so **val.obj** is an empty file. Maybe you can rename **train.obj** into **infer.obj** somehow.
+Watch out that **--split_ratio=0**, so **val.obj** is an empty file. Maybe you can rename **train.obj** into **infer.obj** or **val.obj** somehow.
 
 ### Experiment Layout
 ```sh
@@ -195,7 +196,9 @@ python train.py --experiment_dir=experiment
 ```
 **schedule** here means in between how many epochs, the learning rate will decay by half. The train command will create **sample,logs,checkpoint** directory under **experiment_dir** if non-existed, where you can check and manage the progress of your training.
 
-During the training, you will find two or several checkpoint files **N_net_G.pth** and **N_net_D.pth** , in which N means steps, in the checkpoint directory. You can delete useless checkpoint to save your disk space.
+During the training, you will find two or several checkpoint files **N_net_G.pth** and **N_net_D.pth** , in which N means steps, in the checkpoint directory.
+
+**WARNING**, If your **--checkpoint_steps** is small, you will find tons of checkpoint files in you checkpoint path and your disk space will be filled with useless checkpoint file. You can delete useless checkpoint to save your disk space.
 
 ### Infer
 After training is done, run the below command to infer test data:
@@ -204,7 +207,7 @@ After training is done, run the below command to infer test data:
 python infer.py --experiment_dir experiment
                 --batch_size 32
                 --gpu_ids cuda:0 
-                --resume the saved model you select
+                --resume {the saved model you select}
                 --obj_pth obj_path
 ```
 
@@ -216,13 +219,14 @@ However, if you want to infer on some your own text and **DON'T want to generate
 python infer.py --experiment_dir experiment
                 --gpu_ids cuda:0
                 --batch_size 32
-                --resume the saved model you select
+                --resume {the saved model you select}
                 --from_txt
+                --src_font {your model\'s source font file}
                 --src_txt 大威天龙大罗法咒世尊地藏波若诸佛
                 --label 3
 ```
 
-**src_txt** is the text you want to infer. **label** is the type of target character you want.
+**src_txt** is the raw text you want to infer. **label** is the type of target character you want.
 
 In our pre-trained model, the mapping relationships between **label** and writers are below:
 
@@ -236,9 +240,28 @@ writer_dict = {
     }
 ```
 
-We will release our pre-trained model as soon as possible.
+If you are professional at ancient Chinese handwriting and want to analysis these AI writings by each writer, so you want to generate every type of writing......
 
+Not at all, we prepare the command below for your crazy idea!
 
+```sh
+python infer.py --experiment_dir experiment
+                --gpu_ids cuda:0
+                --batch_size 32
+                --resume {the saved model you select}
+                --from_txt
+                --src_font {your model\'s source font file}
+                --src_txt 大威天龙大罗法咒世尊地藏波若诸佛
+                --run_all_label
+```
+
+This command will output every type of writing in you infer path. Have fun!
+
+## Pre-trained model
+
+For some our school's own reasons, we can't release pre-trained model now.
+
+We will release our model as soon as possible.
 
 ## Acknowledgements
 Code derived and rehashed from:
