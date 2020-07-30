@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import torchvision.transforms as transforms
 from torchvision.utils import save_image, make_grid
+import time
 
 writer_dict = {
         '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
@@ -69,6 +70,8 @@ def main():
     # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
     # dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 
+    t0 = time.time()
+
     model = Zi2ZiModel(
         input_nc=args.input_nc,
         embedding_num=args.embedding_num,
@@ -82,6 +85,8 @@ def main():
     model.setup()
     model.print_networks(True)
     model.load_networks(args.resume)
+
+    t1 = time.time()
 
     if args.from_txt:
         src = args.src_txt
@@ -120,6 +125,10 @@ def main():
             # model.optimize_parameters()
             model.sample(batch, os.path.join(infer_dir, "infer_{}".format(global_steps)))
             global_steps += 1
+
+    t_finish = time.time()
+
+    print('cold start time: %.2f, hot start time %.2f' % (t_finish - t0, t_finish - t1))
 
 
 if __name__ == '__main__':
