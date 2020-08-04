@@ -2,6 +2,7 @@
 from torch.utils.data import DataLoader, TensorDataset
 from model import Zi2ZiModel
 import os
+import sys
 import argparse
 import torch
 import random
@@ -47,6 +48,7 @@ parser.add_argument('--charset', type=str, choices=['s', 'm', 'l'], default='l')
 parser.add_argument('--canvas_size', type=int, default=256)
 parser.add_argument('--char_size', type=int, default=256)
 parser.add_argument('--src_font', type=str, default='charset/gbk/方正新楷体_GBK(完整).TTF')
+parser.add_argument('--label', type=int, default=0)
 
 
 def draw_single_char(ch, font, canvas_size):
@@ -98,6 +100,7 @@ def main():
     model.setup()
     model.print_networks(True)
     model.load_networks(args.resume)
+    sys.stdout.flush()
 
     src = get_charset(args.charset)
     font = ImageFont.truetype(args.src_font, size=args.char_size)
