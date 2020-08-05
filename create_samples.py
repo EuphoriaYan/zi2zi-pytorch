@@ -132,9 +132,10 @@ def main():
             model.forward()
             tensor_to_plot = model.fake_B.detach()
             tensor_to_plot = tensor_to_plot.squeeze(0)
-            tensor_to_plot = tensor_to_plot.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8)
+            tensor_to_plot = tensor_to_plot.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).squeeze(-1)
+            tensor_to_plot = tensor_to_plot.to('cpu', torch.uint8)
             img_ndarray = tensor_to_plot.numpy()
-            im = Image.fromarray(img_ndarray)
+            im = Image.fromarray(img_ndarray, mode='L')
             im.save(os.path.join(infer_dir, writer, src[i] + '.png'))
         print('writer: ' + writer + ' complete.')
 
