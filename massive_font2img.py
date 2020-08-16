@@ -115,7 +115,7 @@ if __name__ == "__main__":
                     img = draw_font2font_example(char, fontPlane15, dst_font, args.canvas_size, args.x_offset, args.y_offset)
                 else:
                     raise ValueError
-                img.save(os.path.join(args.sample_dir, '%d_%05d' % (idx, cur)))
+                img.save(os.path.join(args.sample_dir, '%d_%05d.png' % (idx, cur)))
                 cur += 1
     with open('font_label_map.json', 'w', encoding='utf-8') as fp:
         json.dump(font_label_map, fp)
