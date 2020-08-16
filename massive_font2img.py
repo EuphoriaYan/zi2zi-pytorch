@@ -177,4 +177,5 @@ if __name__ == "__main__":
                     raise ValueError
                 img.save(os.path.join(args.sample_dir, '%d_%05d' % (idx, cur)))
                 cur += 1
-
+    with open('font_label_map.json', 'w', encoding='utf-8') as fp:
+        json.dump(font_label_map, fp)
