@@ -32,66 +32,6 @@ def draw_font2font_example(ch, src_font, dst_font, canvas_size, x_offset, y_offs
     return example_img
 
 
-def draw_font2imgs_example(ch, src_font, dst_img, canvas_size, x_offset, y_offset):
-    src_img = draw_single_char(ch, src_font, canvas_size, x_offset, y_offset)
-    dst_img = dst_img.resize((canvas_size, canvas_size), Image.ANTIALIAS).convert('RGB')
-    example_img = Image.new("RGB", (canvas_size * 2, canvas_size), (255, 255, 255))
-    example_img.paste(dst_img, (0, 0))
-    example_img.paste(src_img, (canvas_size, 0))
-    # convert to gray img
-    example_img = example_img.convert('L')
-    return example_img
-
-
-def draw_imgs2imgs_example(src_img, dst_img, canvas_size):
-    src_img = src_img.resize((canvas_size, canvas_size), Image.ANTIALIAS).convert('RGB')
-    dst_img = dst_img.resize((canvas_size, canvas_size), Image.ANTIALIAS).convert('RGB')
-    example_img = Image.new("RGB", (canvas_size * 2, canvas_size), (255, 255, 255))
-    example_img.paste(dst_img, (0, 0))
-    example_img.paste(src_img, (canvas_size, 0))
-    # convert to gray img
-    example_img = example_img.convert('L')
-    return example_img
-
-
-def filter_recurring_hash(charset, font, canvas_size, x_offset, y_offset):
-    """ Some characters are missing in a given font, filter them
-    by checking the recurring hashes
-    """
-    _charset = charset.copy()
-    np.random.shuffle(_charset)
-    sample = _charset[:2000]
-    hash_count = collections.defaultdict(int)
-    for c in sample:
-        img = draw_single_char(c, font, canvas_size, x_offset, y_offset)
-        hash_count[hash(img.tobytes())] += 1
-    recurring_hashes = filter(lambda d: d[1] > 2, hash_count.items())
-    return [rh[0] for rh in recurring_hashes]
-
-
-def font2font(src, dst, charset, char_size, canvas_size,
-             x_offset, y_offset, sample_count, sample_dir, label=0, filter_by_hash=True):
-    src_font = ImageFont.truetype(src, size=char_size)
-    dst_font = ImageFont.truetype(dst, size=char_size)
-
-    filter_hashes = set()
-    if filter_by_hash:
-        filter_hashes = set(filter_recurring_hash(charset, dst_font, canvas_size, x_offset, y_offset))
-        print("filter hashes -> %s" % (",".join([str(h) for h in filter_hashes])))
-
-    count = 0
-
-    for c in charset:
-        if count == sample_count:
-            break
-        e = draw_font2font_example(c, src_font, dst_font, canvas_size, x_offset, y_offset, filter_hashes)
-        if e:
-            e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
-            count += 1
-            if count % 500 == 0:
-                print("processed %d chars" % count)
-
-
 def processGlyphNames(GlyphNames):
     res = set()
     for char in GlyphNames:
