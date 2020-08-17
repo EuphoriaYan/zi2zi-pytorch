@@ -95,6 +95,7 @@ if __name__ == "__main__":
         if args.shuffle:
             np.random.shuffle(charListTotal)
         font_name = dst_font['font_name']
+        print(font_name + ': ' + str(idx))
         font_label_map[font_name] = idx
         font_path = dst_font['font_pth']
         font_missing = set(dst_font['missing'])
