@@ -101,8 +101,9 @@ if __name__ == "__main__":
         font_missing = set(dst_font['missing'])
         font_fake = set(dst_font['fake'])
         dst_font = ImageFont.truetype(font_path, args.char_size)
+        dst_font_chars = processGlyphNames(TTFont(font_path).getGlyphNames())
         cur = 0
-        for char in charListTotal:
+        for char in dst_font_chars:
             if cur == args.sample_count:
                 break
             if char in font_missing or char in font_fake:
