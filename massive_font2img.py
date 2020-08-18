@@ -17,13 +17,18 @@ from fontTools.ttLib import TTFont
 def draw_single_char(ch, font, canvas_size, x_offset, y_offset):
     img = Image.new("RGB", (canvas_size, canvas_size), (255, 255, 255))
     draw = ImageDraw.Draw(img)
-    draw.text((x_offset, y_offset), ch, (0, 0, 0), font=font)
+    try:
+        draw.text((x_offset, y_offset), ch, (0, 0, 0), font=font)
+    except OSError:
+        return None
     return img
 
 
 def draw_font2font_example(ch, src_font, dst_font, canvas_size, x_offset, y_offset):
     dst_img = draw_single_char(ch, dst_font, canvas_size, x_offset, y_offset)
     src_img = draw_single_char(ch, src_font, canvas_size, x_offset, y_offset)
+    if dst_img is None or src_img is None:
+        return None
     example_img = Image.new("RGB", (canvas_size * 2, canvas_size), (255, 255, 255))
     example_img.paste(dst_img, (0, 0))
     example_img.paste(src_img, (canvas_size, 0))
@@ -62,6 +67,7 @@ parser.add_argument('--x_offset', type=int, default=0, help='x offset')
 parser.add_argument('--y_offset', type=int, default=0, help='y_offset')
 parser.add_argument('--sample_count', type=int, default=20000, help='number of characters to draw')
 parser.add_argument('--sample_dir', type=str, default='sample_dir', help='directory to save examples')
+parser.add_argument('--start_from', type=int, default=0, help='resume from idx')
 
 args = parser.parse_args()
 
@@ -97,6 +103,10 @@ if __name__ == "__main__":
         font_name = dst_font['font_name']
         print(font_name + ': ' + str(idx))
         font_label_map[font_name] = idx
+
+        if idx < args.start_from:
+            continue
+
         font_path = dst_font['font_pth']
         font_missing = set(dst_font['missing'])
         font_fake = set(dst_font['fake'])
@@ -117,7 +127,8 @@ if __name__ == "__main__":
                     img = draw_font2font_example(char, fontPlane15, dst_font, args.canvas_size, args.x_offset, args.y_offset)
                 else:
                     continue
-                img.save(os.path.join(args.sample_dir, '%d_%05d.png' % (idx, cur)))
-                cur += 1
+                if img is not None:
+                    img.save(os.path.join(args.sample_dir, '%d_%05d.png' % (idx, cur)))
+                    cur += 1
     with open('font_label_map.json', 'w', encoding='utf-8') as fp:
         json.dump(font_label_map, fp)
