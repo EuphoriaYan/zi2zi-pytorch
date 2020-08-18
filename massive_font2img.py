@@ -98,8 +98,6 @@ if __name__ == "__main__":
     font_label_map = dict()
 
     for idx, dst_font in enumerate(dst_fonts):
-        if args.shuffle:
-            np.random.shuffle(charListTotal)
         font_name = dst_font['font_name']
         print(font_name + ': ' + str(idx))
         font_label_map[font_name] = idx
@@ -112,6 +110,8 @@ if __name__ == "__main__":
         font_fake = set(dst_font['fake'])
         dst_font = ImageFont.truetype(font_path, args.char_size)
         dst_font_chars = processGlyphNames(TTFont(font_path).getGlyphNames())
+        if args.shuffle:
+            np.random.shuffle(dst_font_chars)
         cur = 0
         for char in dst_font_chars:
             if cur == args.sample_count:
