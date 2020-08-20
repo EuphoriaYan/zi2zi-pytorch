@@ -5,6 +5,7 @@ import os
 import pickle
 import random
 from tqdm import tqdm
+import re
 
 
 def pickle_examples(paths, train_path, val_path, train_val_split=0.1):
@@ -31,6 +32,8 @@ parser.add_argument('--dir', required=True, help='path of examples')
 parser.add_argument('--save_dir', required=True, help='path to save pickled files')
 parser.add_argument('--split_ratio', type=float, default=0.1, dest='split_ratio',
                     help='split ratio between train and val')
+parser.add_argument('--start_num', type=int, default=None)
+parser.add_argument('--end_num', type=int, default=None)
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -38,5 +41,19 @@ if __name__ == "__main__":
         os.mkdir(args.save_dir)
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
-    pickle_examples(sorted(glob.glob(os.path.join(args.dir, "*.jpg"))), train_path=train_path, val_path=val_path,
+    total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.jpg")))
+    # '%d_%05d.png'
+    cur_file_list = []
+    for file_name in total_file_list:
+        res = re.search('(%d+?)_(%d+?).png', file_name)
+        if res is None:
+            continue
+        label = int(res[1])
+        if args.start_num is not None and label < args.start_num:
+            continue
+        if args.end_num is not None and label > args.end_num:
+            continue
+        cur_file_list.append(file_name)
+
+    pickle_examples(cur_file_list, train_path=train_path, val_path=val_path,
                     train_val_split=args.split_ratio)
