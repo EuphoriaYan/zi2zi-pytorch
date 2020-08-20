@@ -3,7 +3,8 @@
 python massive_train.py \
 --experiment_dir experiment \
 --massive_id 01 \
---gpu_ids cuda:0 \
+--gpu_ids cuda:3 \
+--embedding_num 205 \
 --epoch 20 \
 --batch_size 64 \
 --sample_steps 50000 \
