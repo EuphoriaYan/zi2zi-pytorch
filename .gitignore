@@ -129,6 +129,7 @@ dmypy.json
 
 # experiment
 experiment/
+ZhongHuaSong2Shufa_experiment/
 
 # test
 test.py
@@ -139,3 +140,4 @@ shufa_pic/
 # sample
 samples/
 massive_samples/
+ZhongHuaSong2Shufa_samples/

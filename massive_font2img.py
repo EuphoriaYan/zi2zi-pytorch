@@ -87,9 +87,12 @@ if __name__ == "__main__":
     charSetTotal = charSetPlane00 | charSetPlane02 | charSetPlane15
     charListTotal = list(charSetTotal)
 
-    fontPlane00 = ImageFont.truetype(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), args.char_size)
-    fontPlane02 = ImageFont.truetype(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
-    fontPlane15 = ImageFont.truetype(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
+    fontPlane00 = ImageFont.truetype(
+        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), args.char_size)
+    fontPlane02 = ImageFont.truetype(
+        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
+    fontPlane15 = ImageFont.truetype(
+        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
 
     dst_json = args.dst_json
     with open(dst_json, 'r', encoding='utf-8') as fp:
