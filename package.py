@@ -41,7 +41,7 @@ if __name__ == "__main__":
         os.mkdir(args.save_dir)
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
-    total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.png")))
+    total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.jpg")) + glob.glob(os.path.join(args.dir, "*.png")))
     # '%d_%05d.png'
     cur_file_list = []
     for file_name in total_file_list:
