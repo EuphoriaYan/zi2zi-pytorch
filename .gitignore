@@ -141,3 +141,6 @@ shufa_pic/
 samples/
 massive_samples/
 ZhongHuaSong2Shufa_samples/
+
+# output
+output/
