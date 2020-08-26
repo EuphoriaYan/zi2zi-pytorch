@@ -65,7 +65,7 @@ parser.add_argument('--char_size', type=int, default=250, help='character size')
 parser.add_argument('--canvas_size', type=int, default=256, help='canvas size')
 parser.add_argument('--x_offset', type=int, default=0, help='x offset')
 parser.add_argument('--y_offset', type=int, default=0, help='y_offset')
-parser.add_argument('--sample_count', type=int, default=20000, help='number of characters to draw')
+parser.add_argument('--sample_count', type=int, default=5000, help='number of characters to draw')
 parser.add_argument('--sample_dir', type=str, default='sample_dir', help='directory to save examples')
 parser.add_argument('--start_from', type=int, default=0, help='resume from idx')
 
