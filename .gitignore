@@ -129,6 +129,7 @@ dmypy.json
 
 # experiment
 experiment/
+massive_experiment*/
 ZhongHuaSong2Shufa_experiment/
 
 # test
