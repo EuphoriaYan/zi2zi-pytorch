@@ -33,7 +33,7 @@ class DatasetFromObj(data.Dataset):
     def __getitem__(self, index):
         item = self.image_provider.examples[index]
         img_A, img_B = self.process(item[1])
-        return item[0] - args.start_from, img_A, img_B
+        return item[0] - self.start_from, img_A, img_B
 
     def __len__(self):
         return len(self.image_provider.examples)

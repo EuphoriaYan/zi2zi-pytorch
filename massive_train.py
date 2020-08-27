@@ -76,7 +76,11 @@ def main():
     sys.stdout.flush()
 
     # val dataset load only once, no shuffle
-    val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'), input_nc=args.input_nc)
+    val_dataset = DatasetFromObj(
+        os.path.join(data_dir, 'val.obj'),
+        input_nc=args.input_nc,
+        start_from=args.start_from
+    )
     val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     global_steps = 0
@@ -90,6 +94,7 @@ def main():
             bold=False,
             rotate=False,
             blur=True,
+            start_from=args.start_from
         )
         total_batches = math.ceil(len(train_dataset) / args.batch_size)
         dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
