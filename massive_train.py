@@ -12,7 +12,7 @@ import math
 parser = argparse.ArgumentParser(description='Train')
 parser.add_argument('--experiment_dir', required=True,
                     help='experiment directory, data, samples,checkpoints,etc')
-parser.add_argument('--start_from', required=True)
+parser.add_argument('--start_from', type=int, required=True)
 parser.add_argument('--gpu_ids', default=[], nargs='+', help="GPUs")
 parser.add_argument('--image_size', type=int, default=256,
                     help="size of your input and output image")
