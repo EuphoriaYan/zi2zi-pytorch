@@ -12,7 +12,7 @@ import math
 parser = argparse.ArgumentParser(description='Train')
 parser.add_argument('--experiment_dir', required=True,
                     help='experiment directory, data, samples,checkpoints,etc')
-parser.add_argument('--massive_id', required=True)
+parser.add_argument('--start_from', required=True)
 parser.add_argument('--gpu_ids', default=[], nargs='+', help="GPUs")
 parser.add_argument('--image_size', type=int, default=256,
                     help="size of your input and output image")
@@ -51,7 +51,7 @@ def main():
     random.seed(args.random_seed)
     torch.manual_seed(args.random_seed)
 
-    data_dir = os.path.join(args.experiment_dir, "data", "massive" + args.massive_id)
+    data_dir = os.path.join(args.experiment_dir, "data")
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
     sample_dir = os.path.join(args.experiment_dir, "sample")
     log_dir = os.path.join(args.experiment_dir, "logs")

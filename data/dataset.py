@@ -14,7 +14,7 @@ from utils.bytesIO import PickledImageProvider, bytes_to_file
 
 
 class DatasetFromObj(data.Dataset):
-    def __init__(self, obj_path, input_nc=3, augment=False, bold=False, rotate=False, blur=False):
+    def __init__(self, obj_path, input_nc=3, augment=False, bold=False, rotate=False, blur=False, start_from=0):
         super(DatasetFromObj, self).__init__()
         self.image_provider = PickledImageProvider(obj_path)
         self.input_nc = input_nc
@@ -28,11 +28,12 @@ class DatasetFromObj(data.Dataset):
         self.bold = bold
         self.rotate = rotate
         self.blur = blur
+        self.start_from = start_from
 
     def __getitem__(self, index):
         item = self.image_provider.examples[index]
         img_A, img_B = self.process(item[1])
-        return item[0], img_A, img_B
+        return item[0] - args.start_from, img_A, img_B
 
     def __len__(self):
         return len(self.image_provider.examples)
