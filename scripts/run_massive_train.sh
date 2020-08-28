@@ -1,9 +1,9 @@
 
-export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=3
 
 python massive_train.py \
---experiment_dir massive_experiment3 \
---start_from 601 \
+--experiment_dir massive_experiment4 \
+--start_from 801 \
 --gpu_ids cuda:0 \
 --embedding_num 205 \
 --epoch 20 \
