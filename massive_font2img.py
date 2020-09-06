@@ -97,6 +97,12 @@ if __name__ == "__main__":
     dst_json = args.dst_json
     with open(dst_json, 'r', encoding='utf-8') as fp:
         dst_fonts = json.load(fp)
+    with open('charset/font_state.txt', 'w', encoding='utf-8') as fs:
+        for i, font in enumerate(dst_fonts):
+            fs.write(str(i))
+            fs.write('\t')
+            fs.write(font['font_name'])
+            fs.write('\n')
 
     font_label_map = dict()
 

@@ -155,7 +155,6 @@ class Zi2ZiModel:
             p['lr'] = update_lr
             print("Decay net_G learning rate from %.5f to %.5f." % (current_lr, update_lr))
 
-
     def optimize_parameters(self):
         self.forward()  # compute fake images: G(A)
         # update D
@@ -240,12 +239,19 @@ class Zi2ZiModel:
                 # net.eval()
 
     def sample(self, batch, basename):
+        chk_mkdir(basename)
+        cnt = 0
         with torch.no_grad():
             self.set_input(batch[0], batch[2], batch[1])
             self.forward()
             tensor_to_plot = torch.cat([self.fake_B, self.real_B], 3)
+            for label, image_tensor in zip(batch[0], tensor_to_plot):
+                path = os.path.join(basename, path)
+                chk_mkdir(path)
+                vutils.save_image(image_tensor, os.path.join(path, str(cnt) + '.png'))
+                cnt += 1
             # img = vutils.make_grid(tensor_to_plot)
-            vutils.save_image(tensor_to_plot, basename + "_construct.png")
+            # vutils.save_image(tensor_to_plot, basename + "_construct.png")
             '''
             We don't need generate_img currently.
             self.set_input(torch.randn(1, self.embedding_num).repeat(batch[0].shape[0], 1), batch[2], batch[1])
@@ -253,3 +259,8 @@ class Zi2ZiModel:
             tensor_to_plot = torch.cat([self.fake_B, self.real_A], 3)
             vutils.save_image(tensor_to_plot, basename + "_generate.png")
             '''
+
+
+def chk_mkdir(path):
+    if not os.path.isdir(path):
+        os.mkdir(path)

@@ -112,13 +112,13 @@ def main():
                 print("Checkpoint: save checkpoint step %d" % global_steps)
             if global_steps % args.sample_steps == 0:
                 for vbid, val_batch in enumerate(val_dataloader):
-                    model.sample(val_batch, os.path.join(sample_dir, "sample_{}_{}".format(global_steps, vbid)))
+                    model.sample(val_batch, os.path.join(sample_dir, str(global_steps)))
                 print("Sample: sample step %d" % global_steps)
             global_steps += 1
         if (epoch + 1) % args.schedule == 0:
             model.update_lr()
     for vbid, val_batch in enumerate(val_dataloader):
-        model.sample(val_batch, os.path.join(sample_dir, "last_sample_{}_{}".format(global_steps, vbid)))
+        model.sample(val_batch, os.path.join(sample_dir, str(global_steps)))
         print("Checkpoint: save checkpoint step %d" % global_steps)
     model.save_networks(global_steps)
 
