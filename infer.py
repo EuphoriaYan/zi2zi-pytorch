@@ -26,6 +26,7 @@ writer_dict = {
 parser = argparse.ArgumentParser(description='Infer')
 parser.add_argument('--experiment_dir', required=True,
                     help='experiment directory, data, samples,checkpoints,etc')
+parser.add_argument('--start_from', type=int, default=0)
 parser.add_argument('--gpu_ids', default=[], nargs='+', help="GPUs")
 parser.add_argument('--image_size', type=int, default=256,
                     help="size of your input and output image")
@@ -107,7 +108,9 @@ def main():
         dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
 
     else:
-        val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'), input_nc=args.input_nc)
+        val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'),
+                                     input_nc=args.input_nc,
+                                     start_from=args.start_from)
         dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     global_steps = 0
