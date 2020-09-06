@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 import torchvision.transforms as transforms
 from torchvision.utils import save_image, make_grid
 import time
+from model.model import chk_mkdir
 
 writer_dict = {
         '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
@@ -65,6 +66,7 @@ def main():
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
     sample_dir = os.path.join(args.experiment_dir, "sample")
     infer_dir = os.path.join(args.experiment_dir, "infer")
+    chk_mkdir(infer_dir)
 
     # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'), augment=True, bold=True, rotate=True, blur=True)
     # val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'))
