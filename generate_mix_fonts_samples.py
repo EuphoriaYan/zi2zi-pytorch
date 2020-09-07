@@ -13,6 +13,7 @@ import re
 from tqdm import tqdm
 import random
 from fontTools.ttLib import TTFont
+import pprint
 
 from model import Zi2ZiModel
 
@@ -244,9 +245,12 @@ if __name__ == "__main__":
 
     fonts = get_fonts()
     bad_font_ids = get_bad_fontlist()
+    print('bad font ids:')
+    print(bad_font_ids, flush=True)
     mix_ch_handle = create_mix_ch_handle(fonts, bad_font_ids)
 
     charset = get_charset()
+    print('load charset, %d chars in total' % len(charset))
     for ch in charset:
         chkormkdir(os.path.join(args.sample_dir, ch))
 
