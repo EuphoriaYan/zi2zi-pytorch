@@ -233,7 +233,7 @@ class create_mix_ch_handle:
         else:
             # bad font, can't use font magic
             if self.idx in self.bad_font_ids:
-                img = None, True
+                return None, True
             else:
                 img = self.get_fake_single_char(ch)
                 return img, False
@@ -279,4 +279,6 @@ if __name__ == "__main__":
                     img.save(os.path.join(save_path, font_name + '_' + ch + '.png'))
                 else:
                     img.save(os.path.join(save_path, font_name + '_' + ch + '_from_font_magic.png'))
+        if idx % 10 == 0:
+            print('%d fonts have done.', flush=True)
 
