@@ -208,7 +208,7 @@ class create_mix_ch_handle:
         elif ch in self.charSetPlane15:
             input_img = draw_single_char(ch, self.fontPlane15, args.canvas_size, args.x_offset, args.y_offset)
         else:
-            raise ValueError
+            return None
         input_img = input_img.convert('L')
         input_tensor = transforms.ToTensor()(input_img)
         input_tensor = transforms.Normalize(0.5, 0.5)(input_tensor).unsqueeze(0)
@@ -254,7 +254,11 @@ if __name__ == "__main__":
     charset = get_charset()
     print('load charset, %d chars in total' % len(charset), flush=True)
     for ch in charset:
-        chkormkdir(os.path.join(args.sample_dir, ch))
+        if ch not in mix_ch_handle.charSetTotal:
+            print('char %c is strange and will not be included.' % ch)
+            print('encoding %s' % ch.encode('utf-8'))
+        else:
+            chkormkdir(os.path.join(args.sample_dir, ch))
 
     # Get start_num, font_cnt
     if args.create_num == 0:
