@@ -40,6 +40,18 @@ def processGlyphNames(GlyphNames):
     return res
 
 
+def draw_fine_single_char(ch, font, canvas_size):
+    img = Image.new("RGB", (canvas_size, canvas_size), (0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    try:
+        draw.text((10, 10), ch, (255, 255, 255), font=font)
+    except OSError:
+        return None
+    l, u, r, d = img.getbbox()
+    img = np.ndarray(img)
+
+
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--create_num', type=int, default=0, help='use which model')
