@@ -192,7 +192,7 @@ class create_mix_ch_handle:
         self.idx = idx
         cur_font = self.fonts[idx]
         self.font_name = cur_font['font_name']
-        print(self.font_name + ': ' + str(idx))
+        print(self.font_name + ': ' + str(idx), flush=True)
 
         font_path = cur_font['font_pth']
         self.font_missing = set(cur_font['missing'])
@@ -218,7 +218,7 @@ class create_mix_ch_handle:
             self.model.set_input(label, input_tensor, input_tensor)
             self.model.forward()
             output_tensor = self.model.fake_B.detach().cpu()
-            img = transforms.ToPILImage(output_tensor)
+            img = transforms.ToPILImage()(output_tensor)
             return img
 
     def get_mix_character(self, ch):
@@ -280,6 +280,4 @@ if __name__ == "__main__":
                     img.save(os.path.join(save_path, font_name + '_' + ch + '.png'))
                 else:
                     img.save(os.path.join(save_path, font_name + '_' + ch + '_from_font_magic.png'))
-        if idx % 10 == 0:
-            print('%d fonts have done.' % idx, flush=True)
 
