@@ -42,6 +42,8 @@ def processGlyphNames(GlyphNames):
 
 parser = argparse.ArgumentParser()
 
+parser.add_argument('--create_num', type=int, default=0, help='use which model')
+parser.add_argument('--src_fonts_dir', type=str, default='charset/ZhongHuaSong', help='path of the src fonts')
 parser.add_argument('--fonts_json', type=str, default=None, help='path of the target fonts\' json info.')
 parser.add_argument('--char_size', type=int, default=250, help='character size')
 parser.add_argument('--canvas_size', type=int, default=256, help='canvas size')
@@ -58,7 +60,29 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if not os.path.isdir(args.sample_dir):
         os.mkdir(args.sample_dir)
-    '''
+    # Create bad_fonts_list
+    with open(args.bad_fonts, 'r', encoding='utf-8') as bd_fs:
+        bd_fs_lines = bd_fs.readlines()
+    if args.create_num > 4:
+        raise ValueError
+    bd_fs_list = [int(num) for num in bd_fs_lines[args.create_num].strip().split()]
+
+    dst_json = args.dst_json
+    with open(dst_json, 'r', encoding='utf-8') as fp:
+        dst_fonts = json.load(fp)
+    samples_count = collections.defaultdict(int)
+
+    # Get start_num, font_cnt
+    if args.create_num == 0:
+        start_num = 0
+        font_cnt = 201
+    else:
+        start_num = 200 * args.create_num + 1
+        if args.create_num == 4:
+            font_cnt = 165
+        else:
+            font_cnt = 200
+
     src_fonts_dir = args.src_fonts_dir
     fontPlane00 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'))
     fontPlane02 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'))
@@ -76,12 +100,6 @@ if __name__ == "__main__":
         os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
     fontPlane15 = ImageFont.truetype(
         os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
-    '''
-
-    dst_json = args.dst_json
-    with open(dst_json, 'r', encoding='utf-8') as fp:
-        dst_fonts = json.load(fp)
-    samples_count = collections.defaultdict(int)
 
     for idx, dst_font in enumerate(dst_fonts):
         font_name = dst_font['font_name']
