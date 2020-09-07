@@ -237,6 +237,7 @@ class Zi2ZiModel:
                 net = getattr(self, 'net' + name)
                 net.load_state_dict(torch.load(load_path))
                 # net.eval()
+        print('load model %d' % epoch)
 
     def sample(self, batch, basename):
         chk_mkdir(basename)

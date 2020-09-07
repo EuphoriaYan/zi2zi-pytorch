@@ -192,7 +192,7 @@ class create_mix_ch_handle:
         self.idx = idx
         cur_font = self.fonts[idx]
         self.font_name = cur_font['font_name']
-        print(font_name + ': ' + str(idx))
+        print(self.font_name + ': ' + str(idx))
 
         font_path = cur_font['font_pth']
         self.font_missing = set(cur_font['missing'])
@@ -246,11 +246,12 @@ if __name__ == "__main__":
     fonts = get_fonts()
     bad_font_ids = get_bad_fontlist()
     print('bad font ids:')
-    print(bad_font_ids, flush=True)
+    print(bad_font_ids)
     mix_ch_handle = create_mix_ch_handle(fonts, bad_font_ids)
+    sys.stdout.flush()
 
     charset = get_charset()
-    print('load charset, %d chars in total' % len(charset))
+    print('load charset, %d chars in total' % len(charset), flush=True)
     for ch in charset:
         chkormkdir(os.path.join(args.sample_dir, ch))
 
