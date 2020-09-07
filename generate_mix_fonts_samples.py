@@ -280,5 +280,5 @@ if __name__ == "__main__":
                 else:
                     img.save(os.path.join(save_path, font_name + '_' + ch + '_from_font_magic.png'))
         if idx % 10 == 0:
-            print('%d fonts have done.', flush=True)
+            print('%d fonts have done.' % idx, flush=True)
 
