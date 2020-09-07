@@ -126,7 +126,7 @@ def get_bad_fontlist():
 
 
 def get_fonts():
-    dst_json = args.dst_json
+    dst_json = args.fonts_json
     with open(dst_json, 'r', encoding='utf-8') as fp:
         dst_fonts = json.load(fp)
     return dst_fonts
