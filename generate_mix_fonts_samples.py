@@ -70,7 +70,10 @@ def draw_fine_single_char(ch, font, canvas_size):
     # img.show()
     width, height = img.size
     # Convert PIL.Image to FloatTensor, scale from 0 to 1, 0 = black, 1 = white
-    img = transforms.ToTensor()(img)
+    try:
+        img = transforms.ToTensor()(img)
+    except SystemError:
+        return None
     img = img.unsqueeze(0)  # 加轴
     pad_len = int(abs(width - height) / 2)  # 预填充区域的大小
     # 需要填充区域，如果宽大于高则上下填充，否则左右填充
@@ -101,6 +104,7 @@ parser.add_argument('--y_offset', type=int, default=0, help='y_offset')
 parser.add_argument('--sample_dir', type=str, default='sample_dir', help='directory to save samples')
 parser.add_argument('--charset_path', type=str, default='charset/charset_l.txt', help='path of charset file')
 parser.add_argument('--bad_fonts', type=str, default='charset/error_font.txt', help='path of bad font list file')
+parser.add_argument('--start_from', type=int, default=None, help='resume from No.x font')
 # model settings
 parser.add_argument('--experiment_dir', required=True,
                     help='experiment directory, data, samples,checkpoints,etc')
@@ -259,11 +263,14 @@ if __name__ == "__main__":
     charset = get_charset()
     print('load charset, %d chars in total' % len(charset), flush=True)
     for ch in charset:
+        '''
         if ch not in mix_ch_handle.charSetTotal:
             print('char %c is strange and will not be included.' % ch)
             print('encoding %s' % ch.encode('utf-8'))
         else:
             chkormkdir(os.path.join(args.sample_dir, ch))
+        '''
+        chkormkdir(os.path.join(args.sample_dir, ch))
 
     # Get start_num, font_cnt
     if args.create_num == 0:
@@ -275,8 +282,11 @@ if __name__ == "__main__":
             font_cnt = 165
         else:
             font_cnt = 200
+    end_num = start_num + font_cnt
+    if args.start_from is not None:
+        start_num = args.start_from
 
-    for idx in range(start_num, start_num + font_cnt):
+    for idx in range(start_num, end_num):
         mix_ch_handle.set_cur_font(idx)
         font_name = mix_ch_handle.font_name
         for ch in charset:

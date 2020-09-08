@@ -9,4 +9,4 @@ python generate_mix_fonts_samples.py \
 --gpu_ids cuda \
 --embedding_num 205 \
 --resume 300000 \
-
+--start_from 23 \
