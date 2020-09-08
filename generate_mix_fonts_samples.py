@@ -56,8 +56,8 @@ def draw_fine_single_char(ch, font, canvas_size):
     l, u, r, d = img.getbbox()
     l = max(0, l - 5)
     u = max(0, u - 5)
-    r = min(canvas_size, r + 5)
-    d = min(canvas_size, d + 5)
+    r = min(canvas_size - 1, r + 5)
+    d = min(canvas_size - 1, d + 5)
     img = np.array(img)
     img = img[u:d, l:r]
     img = 255 - img
