@@ -53,11 +53,16 @@ def draw_fine_single_char(ch, font, canvas_size):
         draw.text((10, 10), ch, 255, font=font)
     except OSError:
         return None
-    l, u, r, d = img.getbbox()
+    bbox = img.getbbox()
+    if bbox is None:
+        return None
+    l, u, r, d = bbox
     l = max(0, l - 5)
     u = max(0, u - 5)
     r = min(canvas_size - 1, r + 5)
     d = min(canvas_size - 1, d + 5)
+    if l >= r or u >= d:
+        return None
     img = np.array(img)
     img = img[u:d, l:r]
     img = 255 - img
@@ -284,4 +289,3 @@ if __name__ == "__main__":
                     img.save(os.path.join(save_path, font_name + '_' + ch + '.png'))
                 else:
                     img.save(os.path.join(save_path, font_name + '_' + ch + '_from_font_magic.png'))
-
