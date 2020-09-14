@@ -128,9 +128,7 @@ dmypy.json
 .idea/
 
 # experiment
-experiment/
-massive_experiment*/
-ZhongHuaSong2Shufa_experiment/
+*experiment*/
 
 # test
 test.py
