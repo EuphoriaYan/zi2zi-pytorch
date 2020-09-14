@@ -1,8 +1,8 @@
 
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=2
 
 python massive_train.py \
---experiment_dir songhei_experiment \
+--experiment_dir kaiyuanliwei_experiment \
 --gpu_ids cuda \
 --embedding_num 250 \
 --epoch 20 \
