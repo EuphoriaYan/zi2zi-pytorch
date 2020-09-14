@@ -43,6 +43,9 @@ parser.add_argument('--random_seed', type=int, default=777,
 parser.add_argument('--input_nc', type=int, default=3,
                     help='number of input images channels')
 
+def chkormakedir(path):
+    if not os.path.isdir(path):
+        os.mkdir(path)
 
 def main():
     args = parser.parse_args()
@@ -51,8 +54,10 @@ def main():
 
     data_dir = os.path.join(args.experiment_dir, "data")
     checkpoint_dir = os.path.join(args.experiment_dir, "checkpoint")
+    chkormakedir(checkpoint_dir)
     sample_dir = os.path.join(args.experiment_dir, "sample")
-    log_dir = os.path.join(args.experiment_dir, "logs")
+    chkormakedir(sample_dir)
+
     start_time = time.time()
 
     # train_dataset = DatasetFromObj(os.path.join(data_dir, 'train.obj'),
