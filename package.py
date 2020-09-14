@@ -16,8 +16,8 @@ def pickle_examples_with_split_ratio(paths, train_path, val_path, train_val_spli
     """
     with open(train_path, 'wb') as ft:
         with open(val_path, 'wb') as fv:
-            for p in tqdm(paths):
-                label = int(os.path.basename(p).split("_")[0])
+            for p, label in tqdm(paths):
+                label = int(label)
                 with open(p, 'rb') as f:
                     img_bytes = f.read()
                     r = random.random()
@@ -30,8 +30,8 @@ def pickle_examples_with_split_ratio(paths, train_path, val_path, train_val_spli
 
 def pickle_examples_with_file_name(paths, obj_path):
     with open(obj_path, 'wb') as fa:
-        for p in tqdm(paths):
-            label = int(os.path.basename(p).split("_")[0])
+        for p, label in tqdm(paths):
+            label = int(label)
             with open(p, 'rb') as f:
                 img_bytes = f.read()
                 example = (label, img_bytes)
@@ -74,6 +74,19 @@ if __name__ == "__main__":
     with open(dst_json, 'r', encoding='utf-8') as fp:
         dst_fonts = json.load(fp)
 
+    # from total label to type label
+    label_map = dict()
+
+    for idx, dst_font in enumerate(dst_fonts):
+        font_name = dst_font['font_name']
+        font_name = os.path.splitext(font_name)[0]
+        if font_name in font_set:
+            label_map[idx] = inv_font_dict[font_name]
+        else:
+            continue
+
+    ok_fonts = set(label_map.keys())
+
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
 
@@ -85,7 +98,8 @@ if __name__ == "__main__":
         if label is None:
             continue
         label = int(label)
-        cur_file_list.append(file_name)
+        if label in ok_fonts:
+            cur_file_list.append((file_name, label_map[label]))
 
     if args.split_ratio == 0 and args.save_obj_dir is not None:
         pickle_examples_with_file_name(cur_file_list, args.save_obj_dir)
