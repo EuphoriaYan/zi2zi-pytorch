@@ -143,5 +143,8 @@ samples/
 massive_samples/
 ZhongHuaSong2Shufa_samples/
 
+# fonts
+charset/*.ttf
+
 # output
 output/
