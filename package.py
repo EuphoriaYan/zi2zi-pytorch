@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import glob
+import json
 import os
 import pickle
 import random
@@ -42,9 +43,13 @@ parser.add_argument('--dir', required=True, help='path of examples')
 parser.add_argument('--save_dir', required=True, help='path to save pickled files')
 parser.add_argument('--split_ratio', type=float, default=0.1, dest='split_ratio',
                     help='split ratio between train and val')
-parser.add_argument('--start_num', type=int, default=None)
-parser.add_argument('--end_num', type=int, default=None)
+
+parser.add_argument('--type', type=str, default='SongHei')
+parser.add_argument('--dst_json', type=str, default=None)
+parser.add_argument('--type_dir', type=str, default='字体筛选')
+
 parser.add_argument('--save_obj_dir', type=str, default=None)
+
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -52,6 +57,11 @@ if __name__ == "__main__":
         os.mkdir(args.save_dir)
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
+
+    dst_json = args.dst_json
+    with open(dst_json, 'r', encoding='utf-8') as fp:
+        dst_fonts = json.load(fp)
+
     total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.jpg")) + glob.glob(os.path.join(args.dir, "*.png")))
     # '%d_%05d.png'
     cur_file_list = []
@@ -60,10 +70,6 @@ if __name__ == "__main__":
         if label is None:
             continue
         label = int(label)
-        if args.start_num is not None and label < args.start_num:
-            continue
-        if args.end_num is not None and label > args.end_num:
-            continue
         cur_file_list.append(file_name)
 
     if args.split_ratio == 0 and args.save_obj_dir is not None:
