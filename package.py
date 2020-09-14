@@ -95,10 +95,8 @@ if __name__ == "__main__":
     total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.jpg")) + glob.glob(os.path.join(args.dir, "*.png")))
     # '%d_%05d.png'
     cur_file_list = []
-    for file_name in total_file_list:
+    for file_name in tqdm(total_file_list):
         label = os.path.basename(file_name).split('_')[0]
-        if label is None:
-            continue
         label = int(label)
         if label in ok_fonts:
             cur_file_list.append((file_name, label_map[label]))
