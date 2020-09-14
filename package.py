@@ -44,23 +44,38 @@ parser.add_argument('--save_dir', required=True, help='path to save pickled file
 parser.add_argument('--split_ratio', type=float, default=0.1, dest='split_ratio',
                     help='split ratio between train and val')
 
-parser.add_argument('--type', type=str, default='SongHei')
 parser.add_argument('--dst_json', type=str, default=None)
-parser.add_argument('--type_dir', type=str, default='字体筛选')
+parser.add_argument('--type_dir', type=str, default='字体筛选/宋黑类字符集')
 
 parser.add_argument('--save_obj_dir', type=str, default=None)
 
 args = parser.parse_args()
 
+
+def get_special_type():
+    font_lists = os.listdir(args.type_dir)
+    font_lists = [f[:f.find('.test.jpg')] for f in font_lists]
+    with open(os.path.join(args.save_dir, os.path.basename(args.type_dir) + '.txt'), 'w', encoding='utf-8') as fp:
+        for font in font_lists:
+            fp.write(f'{font}\n')
+    font_set = set(font_lists)
+    font_dict = {v: k for v, k in enumerate(font_lists)}
+    inv_font_dict = {k: v for v, k in font_dict.items()}
+    return font_set, font_dict, inv_font_dict
+
+
 if __name__ == "__main__":
     if not os.path.isdir(args.save_dir):
         os.mkdir(args.save_dir)
-    train_path = os.path.join(args.save_dir, "train.obj")
-    val_path = os.path.join(args.save_dir, "val.obj")
+
+    font_set, font_dict, inv_font_dict = get_special_type()
 
     dst_json = args.dst_json
     with open(dst_json, 'r', encoding='utf-8') as fp:
         dst_fonts = json.load(fp)
+
+    train_path = os.path.join(args.save_dir, "train.obj")
+    val_path = os.path.join(args.save_dir, "val.obj")
 
     total_file_list = sorted(glob.glob(os.path.join(args.dir, "*.jpg")) + glob.glob(os.path.join(args.dir, "*.png")))
     # '%d_%05d.png'
