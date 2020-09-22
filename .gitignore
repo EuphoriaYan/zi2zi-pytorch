@@ -145,6 +145,7 @@ ZhongHuaSong2Shufa_samples/
 charset/*.ttf
 字体筛选/
 test/
+*font_missing.json
 
 # output
 output/
