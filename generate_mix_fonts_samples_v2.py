@@ -139,20 +139,17 @@ class create_mix_ch_handle:
         src_fonts_dir = args.src_fonts_dir
         fontPlane00 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'))
         fontPlane02 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'))
-        fontPlane15 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'))
 
         self.charSetPlane00 = processGlyphNames(fontPlane00.getGlyphNames())
         self.charSetPlane02 = processGlyphNames(fontPlane02.getGlyphNames())
-        self.charSetPlane15 = processGlyphNames(fontPlane15.getGlyphNames())
-        self.charSetTotal = self.charSetPlane00 | self.charSetPlane02 | self.charSetPlane15
+
+        self.charSetTotal = self.charSetPlane00 | self.charSetPlane02
         self.charListTotal = list(self.charSetTotal)
 
         self.fontPlane00 = ImageFont.truetype(
             os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), args.char_size)
         self.fontPlane02 = ImageFont.truetype(
             os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
-        self.fontPlane15 = ImageFont.truetype(
-            os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
 
         self.fonts = fonts
         with open(args.bad_fonts, 'r', encoding='utf-8') as bd_fs:
@@ -193,8 +190,6 @@ class create_mix_ch_handle:
             input_img = draw_single_char(ch, self.fontPlane00, args.canvas_size)
         elif ch in self.charSetPlane02:
             input_img = draw_single_char(ch, self.fontPlane02, args.canvas_size)
-        elif ch in self.charSetPlane15:
-            input_img = draw_single_char(ch, self.fontPlane15, args.canvas_size)
         else:
             return None
         input_img = input_img.convert('L')
