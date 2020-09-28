@@ -177,8 +177,6 @@ class create_mix_ch_handle:
             os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), args.char_size)
         self.fontPlane02 = ImageFont.truetype(
             os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
-        self.fontPlane15 = ImageFont.truetype(
-            os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
 
         self.fonts = fonts
         self.bad_font_ids = bad_font_ids
