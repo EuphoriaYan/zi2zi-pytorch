@@ -32,17 +32,21 @@ def processGlyphNames(GlyphNames):
     res = set()
     for char in GlyphNames:
         if char.startswith('uni'):
-            char = char.replace('uni', '\\u')
-        elif char.startswith('uF'):
-            char = char.replace('uF', '\\u')
+            char = char[3:]
+        elif char.startswith('u'):
+            char = char[1:]
         else:
             continue
-        char_utf8 = char.encode('utf-8')
-        try:
-            char_escape = char_utf8.decode('unicode_escape')
-        except UnicodeDecodeError:
-            continue
-        res.add(char_escape)
+        if char:
+            try:
+                char_int = int(char, base=16)
+            except ValueError:
+                continue
+            try:
+                char = chr(char_int)
+            except ValueError:
+                continue
+            res.add(char)
     return res
 
 
