@@ -404,9 +404,9 @@ def augment(raw_path, aug_path, img_name):
 
 
 def threadpool_aug():
-    raw_path = 'songhei_fonts_samples/'
+    raw_path = 'kaiyuanliwei_fonts_samples/'
     # raw_path = 'aug_test/'
-    aug_path = 'songhei_fonts_aug_samples/'
+    aug_path = 'kaiyuanliwei_fonts_aug_samples/'
     # aug_path = 'aug_test_aug/'
 
     threadPool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="aug_")
