@@ -8,7 +8,9 @@ import math
 import numpy as np
 import pylab
 import scipy.ndimage as ndi
-from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
+import PIL
+from PIL import Image, ImageDraw
 from tqdm import tqdm
 
 
@@ -239,20 +241,60 @@ def printlike_fibrous(image, blur=0.5, blotches=5e-5, paper_range=(0.8, 1.0), in
     return printed
 
 
-def test():
-
-    img = np.array(Image.open('data/book_pages/imgs_vertical/book_page_0.jpg'))
-    # img = distort_with_noise(img, bounded_gaussian_noise(img.shape, 15.0, 5.0))
-    # img = ndi.gaussian_filter(img, 0.5)
-    img = (binary_blur(img / 255, 0.7, noise=0.1) * 255).astype(np.uint8)
-    # img = (printlike_fibrous(img / 255) * 255).astype(np.uint8)
-    # img = (printlike_multiscale(img / 255, blur=0.5) * 255).astype(np.uint8)
-    img = Image.fromarray(img)
-    img.show()
-
+def add_frame(img):
+    if isinstance(img, np.ndarray):
+        img = Image.fromarray(img)
+    # no_aug : up : down : left : right: left&right = 2:1:1:3:3:1
+    random_list = ['no_aug', 'no_aug'
+                   'up', 'down',
+                   'left', 'right',
+                   'left', 'right',
+                   'left', 'right',
+                   'left&right']
+    choice = random.choice(random_list)
+    if choice == 'no_aug':
+        return img
+    w, h = img.size
+    expand_ratio = random.uniform(1.1, 1.3)
+    new_w = int(w * expand_ratio)
+    new_h = int(h * expand_ratio)
+    new_img = Image.new(img.mode, (new_w, new_h), 255)  # 0 - black, 255 - white
+    draw = ImageDraw.Draw(new_img)
+    # up
+    if choice == 'up':
+        new_img.paste(img, ((new_w - w) // 2, new_h - h))
+        line_thick = random.randint(3, 10)
+        line_height = random.randint(line_thick, new_h - h - line_thick)
+        draw.line((0, line_height, new_w, line_height), fill=0, width=line_thick)
+    if choice == 'down':
+        new_img.paste(img, ((new_w - w) // 2, 0))
+        line_thick = random.randint(3, 10)
+        line_height = random.randint(h + line_thick, new_h - line_thick)
+        draw.line((0, line_height, new_w, line_height), fill=0, width=line_thick)
+    if choice == 'left':
+        new_img.paste(img, (new_w - w, (new_h - h) // 2))
+        line_thick = random.randint(3, 10)
+        line_width = random.randint(line_thick, new_w - w - line_thick)
+        draw.line((line_width, 0, line_width, new_h), fill=0, width=line_thick)
+    if choice == 'right':
+        new_img.paste(img, (0, (new_h - h) // 2))
+        line_thick = random.randint(3, 10)
+        line_width = random.randint(w + line_thick, new_w - line_thick)
+        draw.line((line_width, 0, line_width, new_h), fill=0, width=line_thick)
+    if choice == 'left&right':
+        new_img.paste(img, ((new_w - w) // 2, (new_h - h) // 2))
+        line_thick = random.randint(3, 10)
+        left_line_width = random.randint(line_thick, (new_w - w) // 2 - line_thick)
+        draw.line((left_line_width, 0, left_line_width, new_h), fill=0, width=line_thick)
+        line_thick = random.randint(3, 10)
+        right_line_width = random.randint((new_w - w) // 2 + w + line_thick, new_w - line_thick)
+        draw.line((right_line_width, 0, right_line_width, new_h), fill=0, width=line_thick)
+    new_img.resize((w, h), Image.BICUBIC)
+    return new_img
 
 def ocrodeg_augment(img):
-    img = np.array(img)
+    if not isinstance(img, np.ndarray):
+        img = np.array(img)
     # 50% use distort, 50% use raw
     flag = 0
     if random.random() < 0.5:
@@ -269,7 +311,7 @@ def ocrodeg_augment(img):
     img = img / 255
 
     # 50% use binary blur, 50% use raw
-    if random.random() < 0.5:
+    if random.random() < -1.0:
         img = binary_blur(
             img,
             sigma=random.uniform(0.5, 0.7),
@@ -342,7 +384,41 @@ def add_noise(img, generate_ratio=0.003, generate_size=0.006):
     return img
 
 
+def augment(raw_path, aug_path, img_name):
+    img_path = os.path.join(raw_path, img_name)
+    aug_path = os.path.join(aug_path, img_name)
+    img = Image.open(img_path)
+    img = ocrodeg_augment(img)
+    img = add_noise(img)
+    img.save(aug_path)
+    return
+
+
+def threadpool_aug():
+    raw_path = 'songhei_fonts_samples/'
+    aug_path = 'songhei_fonts_aug_samples/'
+
+    threadPool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="aug_")
+
+    if not os.path.isdir(aug_path):
+        os.mkdir(aug_path)
+    for char in os.listdir(raw_path):
+        char_path = os.path.join(raw_path, char)
+        aug_char_path = os.path.join(aug_path, char)
+        if not os.path.isdir(aug_path):
+            os.mkdir(aug_path)
+        for img in os.listdir(char_path):
+            threadPool.submit(augment, char_path, aug_char_path, img)
+    threadPool.shutdown(wait=True)
+
+
 if __name__ == '__main__':
-    # test()
-    # augment()
-    pass
+    '''
+    root_path = '楷'
+    imgs = os.listdir(root_path)
+    for img in imgs:
+        img_path = os.path.join(root_path, img)
+        img = Image.open(img_path)
+        add_frame(img).show()
+    '''
+    threadpool_aug()
