@@ -292,12 +292,13 @@ def add_frame(img):
     new_img.resize((w, h), Image.BICUBIC)
     return new_img
 
+
 def ocrodeg_augment(img):
     if not isinstance(img, np.ndarray):
         img = np.array(img)
     # 50% use distort, 50% use raw
     flag = 0
-    if random.random() < 0.5:
+    if random.random() < 1:
         img = distort_with_noise(
             img,
             deltas=bounded_gaussian_noise(
@@ -311,7 +312,7 @@ def ocrodeg_augment(img):
     img = img / 255
 
     # 50% use binary blur, 50% use raw
-    if random.random() < -1.0:
+    if random.random() < 1:
         img = binary_blur(
             img,
             sigma=random.uniform(0.5, 0.7),
@@ -388,6 +389,7 @@ def augment(raw_path, aug_path, img_name):
     img_path = os.path.join(raw_path, img_name)
     aug_path = os.path.join(aug_path, img_name)
     img = Image.open(img_path)
+    img = add_frame(img)
     img = ocrodeg_augment(img)
     img = add_noise(img)
     img.save(aug_path)
@@ -395,8 +397,10 @@ def augment(raw_path, aug_path, img_name):
 
 
 def threadpool_aug():
-    raw_path = 'songhei_fonts_samples/'
-    aug_path = 'songhei_fonts_aug_samples/'
+    #raw_path = 'songhei_fonts_samples/'
+    raw_path = 'aug_test/'
+    #aug_path = 'songhei_fonts_aug_samples/'
+    aug_path = 'aug_test_aug/'
 
     threadPool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="aug_")
 
@@ -405,8 +409,8 @@ def threadpool_aug():
     for char in os.listdir(raw_path):
         char_path = os.path.join(raw_path, char)
         aug_char_path = os.path.join(aug_path, char)
-        if not os.path.isdir(aug_path):
-            os.mkdir(aug_path)
+        if not os.path.isdir(aug_char_path):
+            os.mkdir(aug_char_path)
         for img in os.listdir(char_path):
             threadPool.submit(augment, char_path, aug_char_path, img)
     threadPool.shutdown(wait=True)
