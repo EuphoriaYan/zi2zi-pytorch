@@ -245,7 +245,7 @@ def add_frame(img):
     if isinstance(img, np.ndarray):
         img = Image.fromarray(img)
     # no_aug : up : down : left : right: left&right = 2:1:1:3:3:1
-    random_list = ['no_aug', 'no_aug'
+    random_list = ['no_aug', 'no_aug',
                    'up', 'down',
                    'left', 'right',
                    'left', 'right',
@@ -296,9 +296,13 @@ def add_frame(img):
 def ocrodeg_augment(img):
     if not isinstance(img, np.ndarray):
         img = np.array(img)
+
+    img = img / 255
+    img = np.clip(img, 0.0, 1.0)
+
     # 50% use distort, 50% use raw
     flag = 0
-    if random.random() < 1:
+    if random.random() < 0.5:
         img = distort_with_noise(
             img,
             deltas=bounded_gaussian_noise(
@@ -309,10 +313,11 @@ def ocrodeg_augment(img):
         )
         flag += 1
 
-    img = img / 255
+    # img = img / 255
+    img = np.clip(img, 0.0, 1.0)
 
     # 50% use binary blur, 50% use raw
-    if random.random() < 1:
+    if random.random() < 0.0:
         img = binary_blur(
             img,
             sigma=random.uniform(0.5, 0.7),
@@ -330,6 +335,8 @@ def ocrodeg_augment(img):
         img = printlike_multiscale(img, blur=0.5)
     elif rnd < 1 - flag * 0.15:
         img = printlike_fibrous(img)
+
+    img = np.clip(img, 0.0, 1.0)
 
     img = (img * 255).astype(np.uint8)
     img = Image.fromarray(img)
@@ -397,10 +404,10 @@ def augment(raw_path, aug_path, img_name):
 
 
 def threadpool_aug():
-    #raw_path = 'songhei_fonts_samples/'
-    raw_path = 'aug_test/'
-    #aug_path = 'songhei_fonts_aug_samples/'
-    aug_path = 'aug_test_aug/'
+    raw_path = 'songhei_fonts_samples/'
+    # raw_path = 'aug_test/'
+    aug_path = 'songhei_fonts_aug_samples/'
+    # aug_path = 'aug_test_aug/'
 
     threadPool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="aug_")
 
