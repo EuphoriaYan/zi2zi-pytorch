@@ -206,7 +206,7 @@ parser.add_argument('--mode', type=str, choices=['imgs2imgs, font2imgs, font2fon
                          'use --src_imgs and --dst_imgs for imgs2imgs mode.\n'
                          'use --src_font and --dst_imgs for font2imgs mode.\n'
                          'use --src_font and --dst_font for font2font mode.\n'
-                         'No img2font mode.'
+                         'No imgs2font mode.'
                     )
 parser.add_argument('--src_font', type=str, default=None, help='path of the source font')
 parser.add_argument('--src_imgs', type=str, default=None, help='path of the source imgs')
