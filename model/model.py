@@ -247,7 +247,7 @@ class Zi2ZiModel:
             self.forward()
             tensor_to_plot = torch.cat([self.fake_B, self.real_B], 3)
             for label, image_tensor in zip(batch[0], tensor_to_plot):
-                label_dir = os.path.join(basename, str(label))
+                label_dir = os.path.join(basename, str(label.item()))
                 chk_mkdir(label_dir)
                 vutils.save_image(image_tensor, os.path.join(label_dir, str(cnt) + '.png'))
                 cnt += 1

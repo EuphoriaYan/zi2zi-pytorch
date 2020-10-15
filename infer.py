@@ -51,6 +51,7 @@ parser.add_argument('--char_size', type=int, default=256)
 parser.add_argument('--run_all_label', action='store_true')
 parser.add_argument('--label', type=int, default=0)
 parser.add_argument('--src_font', type=str, default='charset/gbk/方正新楷体_GBK(完整).TTF')
+parser.add_argument('--type_file', type=str, default='type/宋黑类字符集.txt')
 
 
 def draw_single_char(ch, font, canvas_size):
@@ -114,10 +115,13 @@ def main():
         dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     global_steps = 0
+    with open(args.type_file, 'r', encoding='utf-8') as fp:
+        fonts = [s.strip() for s in fp.readlines()]
+    writer_dict = {v: k for k, v in enumerate(fonts)}
 
     for batch in dataloader:
         if args.run_all_label:
-            global writer_dict
+            # global writer_dict
             writer_dict_inv = {v: k for k, v in writer_dict.items()}
             for label_idx in range(29):
                 model.set_input(torch.ones_like(batch[0]) * label_idx, batch[2], batch[1])
