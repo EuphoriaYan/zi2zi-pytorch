@@ -78,19 +78,22 @@ def processGlyphNames(GlyphNames):
     res = set()
     for char in GlyphNames:
         if char.startswith('uni'):
-            char = char.replace('uni', '\\u')
-        elif char.startswith('uF'):
-            char = char.replace('uF', '\\u')
+            char = char[3:]
+        elif char.startswith('u'):
+            char = char[1:]
         else:
             continue
-        char_utf8 = char.encode('utf-8')
-        try:
-            char_escape = char_utf8.decode('unicode_escape')
-        except UnicodeDecodeError:
-            continue
-        res.add(char_escape)
+        if char:
+            try:
+                char_int = int(char, base=16)
+            except ValueError:
+                continue
+            try:
+                char = chr(char_int)
+            except ValueError:
+                continue
+            res.add(char)
     return res
-
 
 
 parser = argparse.ArgumentParser()
@@ -116,20 +119,17 @@ if __name__ == "__main__":
     src_fonts_dir = args.src_fonts_dir
     fontPlane00 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'))
     fontPlane02 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'))
-    fontPlane15 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'))
 
     charSetPlane00 = processGlyphNames(fontPlane00.getGlyphNames())
     charSetPlane02 = processGlyphNames(fontPlane02.getGlyphNames())
-    charSetPlane15 = processGlyphNames(fontPlane15.getGlyphNames())
-    charSetTotal = charSetPlane00 | charSetPlane02 | charSetPlane15
+
+    charSetTotal = charSetPlane00 | charSetPlane02
     charListTotal = list(charSetTotal)
 
     fontPlane00 = ImageFont.truetype(
         os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), args.char_size)
     fontPlane02 = ImageFont.truetype(
         os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), args.char_size)
-    fontPlane15 = ImageFont.truetype(
-        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane15_2020051520200519101206.TTF'), args.char_size)
 
     dst_json = args.dst_json
     with open(dst_json, 'r', encoding='utf-8') as fp:
@@ -163,8 +163,6 @@ if __name__ == "__main__":
                     img = draw_font2font_example(char, fontPlane00, dst_font, args.canvas_size, args.x_offset, args.y_offset)
                 elif char in charSetPlane02:
                     img = draw_font2font_example(char, fontPlane02, dst_font, args.canvas_size, args.x_offset, args.y_offset)
-                elif char in charSetPlane15:
-                    img = draw_font2font_example(char, fontPlane15, dst_font, args.canvas_size, args.x_offset, args.y_offset)
                 else:
                     continue
                 if img is not None:
