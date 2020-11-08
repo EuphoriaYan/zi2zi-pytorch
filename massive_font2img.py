@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     font_label_map = dict()
 
-    for idx, dst_font in enumerate(dst_fonts):
+    for idx, dst_font in tqdm(enumerate(dst_fonts)):
         font_name = dst_font['font_name']
         print(font_name + ': ' + str(idx))
         font_label_map[font_name] = idx
