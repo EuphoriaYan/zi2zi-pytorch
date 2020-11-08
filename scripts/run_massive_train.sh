@@ -2,9 +2,9 @@
 export CUDA_VISIBLE_DEVICES=3
 
 python massive_train.py \
---experiment_dir caokai_experiment \
+--experiment_dir fz2_experiment \
 --gpu_ids cuda \
---embedding_num 250 \
+--embedding_num 520 \
 --epoch 20 \
 --batch_size 128 \
 --sample_steps 10000 \
