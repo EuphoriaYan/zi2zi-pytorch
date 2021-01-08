@@ -8,7 +8,7 @@ from PIL import Image
 
 import torch
 from torch import nn
-from torch.utils.data import TensorDataset, DataLoader
+from torch.utils.data import TensorDataset, DataLoader, Dataset
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -41,12 +41,52 @@ def parse_args():
     return args
 
 
-def collate_fn(img_path):
-    img = Image.open(img_path).convert('L').resize((args.image_size, args.image_size), Image.BICUBIC)
-    img = transforms.ToTensor()(img)
-    img = transforms.Normalize(0.5, 0.5)(img)
-    img = img.unsqueeze(dim=0)
-    return img
+def collate_fn_val(batch):
+    total_img = []
+    for img_path in batch:
+        img = Image.open(img_path).convert('L').resize((args.image_size, args.image_size), Image.BICUBIC)
+        img = transforms.ToTensor()(img)
+        img = transforms.Normalize(0.5, 0.5)(img)
+        img = img.unsqueeze(dim=0)
+        total_img.append(img)
+    total_img = torch.cat(total_img, dim=0)
+    return total_img
+
+
+def collate_fn_train(batch):
+    total_img = []
+    total_font = []
+    for img_path, font in batch:
+        img = Image.open(img_path).convert('L').resize((args.image_size, args.image_size), Image.BICUBIC)
+        img = transforms.ToTensor()(img)
+        img = transforms.Normalize(0.5, 0.5)(img)
+        img = img.unsqueeze(dim=0)
+        total_img.append(img)
+        total_font.append(font)
+    total_img = torch.cat(total_img, dim=0)
+    total_font = torch.LongTensor(total_font)
+    return total_img, total_font
+
+
+class ImgDataset(Dataset):
+    def __init__(self, img_list, label_list=None):
+        super(ImgDataset).__init__()
+        self.img_list = img_list
+        if label_list is not None:
+            self.label_list = label_list
+            assert len(img_list) == len(label_list)
+        else:
+            self.label_list = None
+
+    def __getitem__(self, index):
+        if self.label_list is not None:
+            return self.img_list[index], self.label_list[index]
+        else:
+            return self.img_list[index]
+
+    def __len__(self):
+        return len(self.img_list)
+
 
 
 def load_val_dataloader(args):
@@ -56,11 +96,10 @@ def load_val_dataloader(args):
         for file in files:
             if os.path.splitext(file)[-1].lower() in IMG_EXT:
                 raw_img_list.append(os.path.join(root, file))
-    img_list = [collate_fn(img_path) for img_path in raw_img_list]
-    img_list = torch.cat(img_list, dim=0)
+    img_list = raw_img_list
     # img_list = torch.repeat_interleave(img_list, repeats=2, dim=1)
-    img_dataset = TensorDataset(img_list)
-    img_dataloader = DataLoader(img_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
+    img_dataset = ImgDataset(img_list)
+    img_dataloader = DataLoader(img_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn_val)
     return raw_img_list, img_dataloader
 
 
@@ -71,7 +110,7 @@ def eval(args):
     model = Discriminator(input_nc=args.input_nc, embedding_num=args.embedding_num)
     model_ckpt = torch.load(os.path.join(args.ckpt_path))
     model.load_state_dict(model_ckpt)
-    print('load model {}'.format(args.resume))
+    print('load model {}'.format(args.ckpt_path))
 
     model.to('cuda')
 
@@ -80,7 +119,7 @@ def eval(args):
     total_category = []
 
     for batch in img_dataloader:
-        img = batch[0]
+        img = batch
         img = img.to('cuda')
         _, catagory_logits = model(img)
         catagory_logits = catagory_logits.detach().cpu()
@@ -103,20 +142,20 @@ def load_train_dataloader(args, inv_font_map):
                 raw_img_list.append(os.path.join(root, file))
                 raw_label_list.append(os.path.split(root)[-1])
 
-    img_list = [collate_fn(img_path) for img_path in raw_img_list]
+    img_list = [img_path for img_path in raw_img_list]
     label_list = [inv_font_map[font_name] for font_name in raw_label_list]
 
     img_train, img_val, label_train, label_val = train_test_split(img_list, label_list, test_size=0.1, random_state=777)
 
-    img_train = torch.cat(img_train, dim=0)
-    label_train = torch.LongTensor(label_train)
-    train_dataset = TensorDataset(img_train, label_train)
-    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    # img_train = torch.cat(img_train, dim=0)
+    # label_train = torch.LongTensor(label_train)
+    train_dataset = ImgDataset(img_train, label_train)
+    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn_train)
 
-    img_val = torch.cat(img_val, dim=0)
-    label_val = torch.LongTensor(label_val)
-    val_dataset = TensorDataset(img_val, label_val)
-    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+    # img_val = torch.cat(img_val, dim=0)
+    # label_val = torch.LongTensor(label_val)
+    val_dataset = ImgDataset(img_val, label_val)
+    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn_train)
 
     return train_dataloader, val_dataloader
 
