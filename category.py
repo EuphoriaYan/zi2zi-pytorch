@@ -140,7 +140,7 @@ def load_train_dataloader(args, inv_font_map):
         for file in files:
             if os.path.splitext(file)[-1].lower() in IMG_EXT:
                 raw_img_list.append(os.path.join(root, file))
-                raw_label_list.append(os.path.split(root)[-1])
+                raw_label_list.append(os.path.splitext(os.path.split(root)[-1])[0])
 
     img_list = [img_path for img_path in raw_img_list]
     label_list = [inv_font_map[font_name] for font_name in raw_label_list]
