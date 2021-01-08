@@ -8,3 +8,4 @@ python category.py \
 --embedding_num 520 \
 --type_file type/方正第二批.txt \
 --epoch 30 \
+--save_path category_output \
