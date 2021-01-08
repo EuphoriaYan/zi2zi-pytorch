@@ -78,7 +78,7 @@ if __name__ == '__main__':
     args = parse_args()
     chk_mkdir(args.output_path)
     charset = json.load(open("./charset/cjk.json"))['gb2312_t']
-    fonts_list = [f for f in os.listdir(args.fonts_path) if os.path.splitext(f)[-1] in {'.otf', '.ttf', '.ttc'}]
+    fonts_list = [f for f in os.listdir(args.fonts_path) if os.path.splitext(f)[-1].lower() in {'.otf', '.ttf', '.ttc'}]
     # fonts_map = {font: idx for idx, font in enumerate(fonts_list)}
     for font in fonts_list:
         font_output_dir = os.path.join(args.output_path, font)
