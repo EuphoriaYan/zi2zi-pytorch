@@ -91,7 +91,7 @@ if __name__ == '__main__':
                 char_img = draw_single_char(char, font_if, canvas_size=args.canvas_size)
             except ValueError as e:
                 continue
-            if np.array(char_img).mean() < 1:
+            if char_img is None or np.array(char_img).mean() < 1:
                 continue
             img_output_path = os.path.join(font_output_dir, str(cnt) + '.jpg')
             char_img.save(img_output_path)
