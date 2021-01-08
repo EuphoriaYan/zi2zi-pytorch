@@ -23,7 +23,6 @@ def parse_args():
     parser.add_argument('--fonts_path', type=str, required=True)
     parser.add_argument('--canvas_size', type=int, default=256)
     parser.add_argument('--char_size', type=int, default=256)
-    parser.add_argument('--charset', type=str, default='charset/charset_xl.txt')
     parser.add_argument('--generate_cnt', type=int, default=5)
     parser.add_argument('--output_path', type=str, default='./fonts_output')
     args = parser.parse_args()

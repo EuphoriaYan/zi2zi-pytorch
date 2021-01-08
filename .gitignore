@@ -149,3 +149,6 @@ test/
 
 # output
 output/
+
+# font_output
+fonts_output/
