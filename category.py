@@ -5,6 +5,7 @@ import sys
 import argparse
 import time
 from PIL import Image
+import numpy as np
 
 import torch
 from torch import nn
@@ -182,22 +183,26 @@ def train(args):
                 model_ckpt.pop('catagory.weight')
                 model_ckpt.pop('catagory.bias')
                 model.load_state_dict(model_ckpt, strict=False)
-        print('load model {}'.format(args.resume))
+        print('load model {}'.format(args.resume), flush=True)
 
     model.to('cuda')
     optimizer = torch.optim.AdamW(params=model.parameters(), lr=args.lr)
     train_dataloader, val_dataloader = load_train_dataloader(args, inv_font_map)
 
+    best_acc = 0
+
     for epoch_idx in range(args.epoch):
+        losses = []
         for batch_idx, batch in enumerate(train_dataloader):
             img, label = batch
             img = img.to('cuda')
             label = label.to('cuda')
             _, catagory_logits = model(img)
             loss = nn.CrossEntropyLoss()(catagory_logits, label)
+            losses.append(loss.item())
             loss.backward()
             optimizer.step()
-            # print('Epoch: {}, Batch: {}, Loss:{:.4f}'.format(epoch_idx, batch_idx, loss.item()))
+        print('Epoch: {}, Loss:{:.4f}'.format(epoch_idx, np.mean(losses)), flush=True)
         with torch.no_grad():
             pred = []
             gold = []
@@ -210,8 +215,11 @@ def train(args):
                 catagory_idx = catagory_idx.detach().cpu().numpy().tolist()
                 pred.extend(catagory_idx)
             acc = accuracy_score(gold, pred)
-            print('Epoch: {}, ACC: {:.4f}'.format(epoch_idx, acc))
-            torch.save(model.state_dict(), os.path.join(args.save_path, 'category_{}.pth'.format(epoch_idx)))
+            print('Epoch: {}, ACC: {:.4f}'.format(epoch_idx, acc), flush=True)
+            if acc >= best_acc:
+                print('Save best ckpt.')
+                torch.save(model.state_dict(), os.path.join(args.save_path, 'category_best.pth'))
+                best_acc = acc
 
 
 if __name__ == '__main__':
