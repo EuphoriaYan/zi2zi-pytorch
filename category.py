@@ -205,6 +205,8 @@ def train(args):
             losses.append(loss.item())
             loss.backward()
             optimizer.step()
+            if batch_idx % 50 == 0:
+                print('Epoch: {}, Batch: {}, Loss:{:.4f}'.format(epoch_idx, batch_idx, loss.item()), flush=True)
         print('Epoch: {}, Loss:{:.4f}'.format(epoch_idx, np.mean(losses)), flush=True)
         with torch.no_grad():
             pred = []
@@ -220,7 +222,7 @@ def train(args):
             acc = accuracy_score(gold, pred)
             print('Epoch: {}, ACC: {:.4f}'.format(epoch_idx, acc), flush=True)
             if acc >= best_acc:
-                print('Save best ckpt.')
+                print('Save best ckpt.', flush=True)
                 torch.save(model.state_dict(), os.path.join(args.save_path, 'category_best.pth'))
                 best_acc = acc
 
