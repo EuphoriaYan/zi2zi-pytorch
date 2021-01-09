@@ -172,7 +172,7 @@ def train(args):
     if args.resume is not None:
         model_ckpt = torch.load(args.resume)
         try:
-            model.load_state_dict(model_ckpt, strict=False)
+            model.load_state_dict(model_ckpt)
         except RuntimeError:
             print('Guess resume from raw discriminator ckpt. Try pop model.0.weight.')
             model_ckpt.pop('model.0.weight')
@@ -191,14 +191,17 @@ def train(args):
 
     best_acc = 0
 
+    loss_criterion = nn.CrossEntropyLoss()
+
     for epoch_idx in range(args.epoch):
         losses = []
         for batch_idx, batch in enumerate(train_dataloader):
             img, label = batch
             img = img.to('cuda')
             label = label.to('cuda')
+            model.zero_grad()
             _, catagory_logits = model(img)
-            loss = nn.CrossEntropyLoss()(catagory_logits, label)
+            loss = loss_criterion(catagory_logits, label)
             losses.append(loss.item())
             loss.backward()
             optimizer.step()
