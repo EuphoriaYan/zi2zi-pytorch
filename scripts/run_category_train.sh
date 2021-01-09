@@ -3,7 +3,7 @@ export CUDA_VISIBLE_DEVICES=3
 
 python category.py \
 --action train \
---resume category_output/category_29.pth \
+--resume category_output/category_best.pth \
 --input_path fonts_output \
 --embedding_num 520 \
 --type_file type/方正第二批.txt \
