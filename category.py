@@ -12,7 +12,7 @@ from torch import nn
 from torch.utils.data import TensorDataset, DataLoader, Dataset
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from model.discriminators import Discriminator
 
@@ -221,7 +221,10 @@ def train(args):
                 catagory_idx = catagory_idx.detach().cpu().numpy().tolist()
                 pred.extend(catagory_idx)
             acc = accuracy_score(gold, pred)
-            print('Epoch: {}, ACC: {:.4f}'.format(epoch_idx, acc), flush=True)
+            pre = precision_score(gold, pred)
+            rec = recall_score(gold, pred)
+            f1 = f1_score(gold, pred)
+            print('Epoch: {}, p: {:.4f}, r: {:.4f}, f1: {:.4f} ACC: {:.4f}'.format(epoch_idx, pre, rec, f1, acc), flush=True)
             if acc >= best_acc:
                 print('Save best ckpt.', flush=True)
                 torch.save(model.state_dict(), os.path.join(args.save_path, 'category_best.pth'))
