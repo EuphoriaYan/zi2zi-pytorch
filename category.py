@@ -170,14 +170,18 @@ def train(args):
 
     if args.resume is not None:
         model_ckpt = torch.load(args.resume)
-        model_ckpt.pop('model.0.weight')
         try:
             model.load_state_dict(model_ckpt, strict=False)
         except RuntimeError:
-            print('Guess resume ckpt and your model have different catagories. Try pop catagory parameters.')
-            model_ckpt.pop('catagory.weight')
-            model_ckpt.pop('catagory.bias')
-            model.load_state_dict(model_ckpt, strict=False)
+            print('Guess resume from raw discriminator ckpt. Try pop model.0.weight.')
+            model_ckpt.pop('model.0.weight')
+            try:
+                model.load_state_dict(model_ckpt, strict=False)
+            except RuntimeError:
+                print('Guess resume ckpt and your model have different catagories. Try pop catagory parameters.')
+                model_ckpt.pop('catagory.weight')
+                model_ckpt.pop('catagory.bias')
+                model.load_state_dict(model_ckpt, strict=False)
         print('load model {}'.format(args.resume))
 
     model.to('cuda')
