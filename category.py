@@ -190,6 +190,7 @@ def train(args):
     train_dataloader, val_dataloader = load_train_dataloader(args, inv_font_map)
 
     best_acc = 0
+    best_f1 = 0
 
     loss_criterion = nn.CrossEntropyLoss()
 
@@ -225,10 +226,11 @@ def train(args):
             rec = recall_score(gold, pred)
             f1 = f1_score(gold, pred)
             print('Epoch: {}, p: {:.4f}, r: {:.4f}, f1: {:.4f} ACC: {:.4f}'.format(epoch_idx, pre, rec, f1, acc), flush=True)
-            if acc >= best_acc:
+            if f1 >= best_f1 or acc >= best_acc:
                 print('Save best ckpt.', flush=True)
                 torch.save(model.state_dict(), os.path.join(args.save_path, 'category_best.pth'))
                 best_acc = acc
+                best_f1 = f1
             model.train()
 
 
