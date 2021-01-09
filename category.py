@@ -222,9 +222,9 @@ def train(args):
                 catagory_idx = catagory_idx.detach().cpu().numpy().tolist()
                 pred.extend(catagory_idx)
             acc = accuracy_score(gold, pred)
-            pre = precision_score(gold, pred)
-            rec = recall_score(gold, pred)
-            f1 = f1_score(gold, pred)
+            pre = precision_score(gold, pred, average='macro')
+            rec = recall_score(gold, pred, average='macro')
+            f1 = f1_score(gold, pred, average='macro')
             print('Epoch: {}, p: {:.4f}, r: {:.4f}, f1: {:.4f} ACC: {:.4f}'.format(epoch_idx, pre, rec, f1, acc), flush=True)
             if f1 >= best_f1 or acc >= best_acc:
                 print('Save best ckpt.', flush=True)
