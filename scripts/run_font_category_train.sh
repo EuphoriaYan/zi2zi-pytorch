@@ -1,7 +1,7 @@
 
 export CUDA_VISIBLE_DEVICES=3
 
-python category.py \
+python font_category.py \
 --action train \
 --resume category_output/category_best.pth \
 --input_path fonts_output \

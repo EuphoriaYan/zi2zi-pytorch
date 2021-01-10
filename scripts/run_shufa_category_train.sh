@@ -1,7 +1,7 @@
 
 export CUDA_VISIBLE_DEVICES=3
 
-python category.py \
+python shufa_category.py \
 --action train \
 --resume category_output/category_best.pth \
 --input_path shufa_pic/square_img \
