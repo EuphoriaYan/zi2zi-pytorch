@@ -2,6 +2,7 @@ from data import DatasetFromObj
 from torch.utils.data import DataLoader
 from model import Zi2ZiModel
 import os
+import sys
 import argparse
 import torch
 import random

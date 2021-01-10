@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+__author__ = 'Euphoria'
 
 import os
 import sys
@@ -17,16 +19,26 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from model.discriminators import Discriminator
 
 
+inv_writer_dict = {
+        '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
+        '歐陽詢-皇甫誕': 7, '沈尹默': 8, '美工-崩雲體': 9, '美工-瘦顏體': 10, '虞世南': 11, '行書-傅山': 12, '行書-王壯為': 13,
+        '行書-王鐸': 14, '行書-米芾': 15, '行書-趙孟頫': 16, '行書-鄭板橋': 17, '行書-集字聖教序': 18, '褚遂良': 19, '趙之謙': 20,
+        '趙孟頫三門記體': 21, '隸書-伊秉綬': 22, '隸書-何紹基': 23, '隸書-鄧石如': 24, '隸書-金農': 25,  '顏真卿-顏勤禮碑': 26,
+        '顏真卿多寶塔體': 27, '魏碑': 28
+    }
+
+writer_dict = {v: k for k, v in inv_writer_dict.items()}
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--action', choices=['train', 'eval'])
 
     parser.add_argument('--image_size', type=int, default=256, help="size of your input images")
-    parser.add_argument('--embedding_num', type=int, default=40,
-                        help="number for distinct embeddings")
-    parser.add_argument('--batch_size', type=int, default=16, help='number of examples in batch')
+    parser.add_argument('--embedding_num', type=int, default=30, help="number for distinct embeddings")
+    parser.add_argument('--batch_size', type=int, default=32, help='number of examples in batch')
     parser.add_argument('--input_nc', type=int, default=1)
-    parser.add_argument('--type_file', type=str, default='type/宋黑类字符集.txt')
+    parser.add_argument('--input_path', type=str, required=True)
 
     # train
     parser.add_argument('--resume', type=str, default=None)
@@ -36,7 +48,6 @@ def parse_args():
 
     # eval
     parser.add_argument('--ckpt_path', type=str, default='output/category.pth')
-    parser.add_argument('--input_path', type=str, required=True)
 
     args = parser.parse_args()
     return args
@@ -132,7 +143,6 @@ def eval(args):
         print('{}: {}'.format(img, font_map[catagory_idx]))
 
 
-
 def load_train_dataloader(args, inv_font_map):
     IMG_EXT = {'.jpg', '.png', '.tif', '.tiff'}
     raw_img_list = []
@@ -141,7 +151,7 @@ def load_train_dataloader(args, inv_font_map):
         for file in files:
             if os.path.splitext(file)[-1].lower() in IMG_EXT:
                 raw_img_list.append(os.path.join(root, file))
-                raw_label_list.append(os.path.splitext(os.path.split(root)[-1])[0])
+                raw_label_list.append(file.split('~')[1])
 
     img_list = [img_path for img_path in raw_img_list]
     label_list = [inv_font_map[font_name] for font_name in raw_label_list]
@@ -163,9 +173,11 @@ def load_train_dataloader(args, inv_font_map):
 
 def train(args):
 
-    font_names = [s.strip() for s in open(args.type_file, encoding='utf-8').readlines()]
-    font_map = {idx: font for idx, font in enumerate(font_names)}
-    inv_font_map = {font: idx for idx, font in enumerate(font_names)}
+    font_map = writer_dict
+    inv_font_map = inv_writer_dict
+
+    if not os.path.isdir(args.save_path):
+        os.makedirs(args.save_path)
 
     model = Discriminator(input_nc=args.input_nc, embedding_num=args.embedding_num)
 
