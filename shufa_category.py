@@ -158,6 +158,8 @@ def load_train_dataloader(args, inv_font_map):
 
     img_train, img_val, label_train, label_val = train_test_split(img_list, label_list, test_size=0.1, random_state=777)
 
+    print('get {} train examples, {} val examples.'.format(len(img_train), len(img_val)))
+
     # img_train = torch.cat(img_train, dim=0)
     # label_train = torch.LongTensor(label_train)
     train_dataset = ImgDataset(img_train, label_train)
