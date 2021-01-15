@@ -16,6 +16,7 @@ from fontTools.ttLib import TTFont
 import pprint
 
 from model import Zi2ZiModel
+from utils.charset_util import processGlyphNames
 
 
 def draw_single_char(ch, font, canvas_size, x_offset, y_offset):
@@ -26,28 +27,6 @@ def draw_single_char(ch, font, canvas_size, x_offset, y_offset):
     except OSError:
         return None
     return img
-
-
-def processGlyphNames(GlyphNames):
-    res = set()
-    for char in GlyphNames:
-        if char.startswith('uni'):
-            char = char[3:]
-        elif char.startswith('u'):
-            char = char[1:]
-        else:
-            continue
-        if char:
-            try:
-                char_int = int(char, base=16)
-            except ValueError:
-                continue
-            try:
-                char = chr(char_int)
-            except ValueError:
-                continue
-            res.add(char)
-    return res
 
 
 def draw_fine_single_char(ch, font, canvas_size):

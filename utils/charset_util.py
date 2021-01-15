@@ -14,3 +14,25 @@ def load_charset(ch_size):
     else:
         raise ValueError
     return charset
+
+
+def processGlyphNames(GlyphNames):
+    res = set()
+    for char in GlyphNames:
+        if char.startswith('uni'):
+            char = char[3:]
+        elif char.startswith('u'):
+            char = char[1:]
+        else:
+            continue
+        if char:
+            try:
+                char_int = int(char, base=16)
+            except ValueError:
+                continue
+            try:
+                char = chr(char_int)
+            except ValueError:
+                continue
+            res.add(char)
+    return res

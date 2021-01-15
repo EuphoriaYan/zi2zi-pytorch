@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
-import argparse
-import sys
-import numpy as np
+
 import os
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+import sys
+
+import argparse
+import numpy as np
+
+from PIL import Image, ImageFont, ImageDraw
 import json
 import collections
 import re
+from fontTools.ttLib import TTFont
 from tqdm import tqdm
 import random
+
+from torch import nn
+from torchvision import transforms
+
+from utils.charset_util import processGlyphNames
 
 CN_CHARSET = None
 CN_T_CHARSET = None
@@ -29,10 +36,48 @@ def load_global_charset():
     CN_T_CHARSET = cjk["gb2312_t"]
 
 
-def draw_single_char(ch, font, canvas_size, x_offset, y_offset):
-    img = Image.new("RGB", (canvas_size, canvas_size), (255, 255, 255))
+def draw_single_char(ch, font, canvas_size, x_offset=0, y_offset=0):
+    img = Image.new("L", (canvas_size * 2, canvas_size * 2), 0)
     draw = ImageDraw.Draw(img)
-    draw.text((x_offset, y_offset), ch, (0, 0, 0), font=font)
+    try:
+        draw.text((10, 10), ch, 255, font=font)
+    except OSError:
+        return None
+    bbox = img.getbbox()
+    if bbox is None:
+        return None
+    l, u, r, d = bbox
+    l = max(0, l - 5)
+    u = max(0, u - 5)
+    r = min(canvas_size * 2 - 1, r + 5)
+    d = min(canvas_size * 2 - 1, d + 5)
+    if l >= r or u >= d:
+        return None
+    img = np.array(img)
+    img = img[u:d, l:r]
+    img = 255 - img
+    img = Image.fromarray(img)
+    # img.show()
+    width, height = img.size
+    # Convert PIL.Image to FloatTensor, scale from 0 to 1, 0 = black, 1 = white
+    try:
+        img = transforms.ToTensor()(img)
+    except SystemError:
+        return None
+    img = img.unsqueeze(0)  # 加轴
+    pad_len = int(abs(width - height) / 2)  # 预填充区域的大小
+    # 需要填充区域，如果宽大于高则上下填充，否则左右填充
+    if width > height:
+        fill_area = (0, 0, pad_len, pad_len)
+    else:
+        fill_area = (pad_len, pad_len, 0, 0)
+    # 填充像素常值
+    fill_value = 1
+    img = nn.ConstantPad2d(fill_area, fill_value)(img)
+    # img = nn.ZeroPad2d(m)(img) #直接填0
+    img = img.squeeze(0)  # 去轴
+    img = transforms.ToPILImage()(img)
+    img = img.resize((canvas_size, canvas_size), Image.ANTIALIAS)
     return img
 
 
@@ -143,6 +188,55 @@ def font2imgs(src, dst, char_size, canvas_size,
             count += 1
 
 
+def fonts2imgs(src_fonts_dir, dst, char_size, canvas_size,
+               x_offset, y_offset, sample_count, sample_dir):
+    fontPlane00 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'))
+    fontPlane02 = TTFont(os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'))
+
+    charSetPlane00 = processGlyphNames(fontPlane00.getGlyphNames())
+    charSetPlane02 = processGlyphNames(fontPlane02.getGlyphNames())
+
+    charSetTotal = charSetPlane00 | charSetPlane02
+    charListTotal = list(charSetTotal)
+
+    fontPlane00 = ImageFont.truetype(
+        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane00_2020051520200519101119.TTF'), char_size)
+    fontPlane02 = ImageFont.truetype(
+        os.path.join(src_fonts_dir, 'FZSONG_ZhongHuaSongPlane02_2020051520200519101142.TTF'), char_size)
+
+    # -*- You should fill the target imgs' label_map -*-
+    writer_dict = {
+        '智永': 0, ' 隸書-趙之謙': 1, '張即之': 2, '張猛龍碑': 3, '柳公權': 4, '標楷體-手寫': 5, '歐陽詢-九成宮': 6,
+        '歐陽詢-皇甫誕': 7, '沈尹默': 8, '美工-崩雲體': 9, '美工-瘦顏體': 10, '虞世南': 11, '行書-傅山': 12, '行書-王壯為': 13,
+        '行書-王鐸': 14, '行書-米芾': 15, '行書-趙孟頫': 16, '行書-鄭板橋': 17, '行書-集字聖教序': 18, '褚遂良': 19, '趙之謙': 20,
+        '趙孟頫三門記體': 21, '隸書-伊秉綬': 22, '隸書-何紹基': 23, '隸書-鄧石如': 24, '隸書-金農': 25,  '顏真卿-顏勤禮碑': 26,
+        '顏真卿多寶塔體': 27, '魏碑': 28
+    }
+    count = 0
+
+    # -*- You should fill the target imgs' regular expressions. -*-
+    pattern = re.compile('(.)~(.+)~(\d+)')
+
+    for c in tqdm(os.listdir(dst)):
+        if count == sample_count:
+            break
+        res = re.match(pattern, c)
+        ch = res[1]
+        writter = res[2]
+        label = writer_dict[writter]
+        img_path = os.path.join(dst, c)
+        dst_img = Image.open(img_path)
+        if ch in charSetPlane00:
+            e = draw_font2imgs_example(ch, fontPlane00, dst_img, canvas_size, x_offset, y_offset)
+        elif ch in charSetPlane02:
+            e = draw_font2imgs_example(ch, fontPlane02, dst_img, canvas_size, x_offset, y_offset)
+        else:
+            e = None
+        if e:
+            e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
+            count += 1
+
+
 def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
 
     # -*- You should fill the target imgs' label_map -*-
@@ -201,14 +295,16 @@ def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
 
 load_global_charset()
 parser = argparse.ArgumentParser()
-parser.add_argument('--mode', type=str, choices=['imgs2imgs, font2imgs, font2font'], required=True,
+parser.add_argument('--mode', type=str, choices=['imgs2imgs, font2imgs, font2font', 'fonts2imgs'], required=True,
                     help='generate mode.\n'
                          'use --src_imgs and --dst_imgs for imgs2imgs mode.\n'
                          'use --src_font and --dst_imgs for font2imgs mode.\n'
                          'use --src_font and --dst_font for font2font mode.\n'
+                         'use --src_fonts_dir and --dst_imgs for fonts2imgs mode.\n'
                          'No imgs2font mode.'
                     )
 parser.add_argument('--src_font', type=str, default=None, help='path of the source font')
+parser.add_argument('--src_fonts_dir', type=str, default=None, help='path of the source fonts')
 parser.add_argument('--src_imgs', type=str, default=None, help='path of the source imgs')
 parser.add_argument('--dst_font', type=str, default=None, help='path of the target font')
 parser.add_argument('--dst_imgs', type=str, default=None, help='path of the target imgs')
@@ -246,6 +342,12 @@ if __name__ == "__main__":
         if args.src_font is None or args.dst_imgs is None:
             raise ValueError('src_font and dst_imgs are required.')
         font2imgs(args.src_font, args.dst_imgs, args.char_size,
+                  args.canvas_size, args.x_offset, args.y_offset,
+                  args.sample_count, args.sample_dir)
+    elif args.mode == 'fonts2imgs':
+        if args.src_fonts_dir is None or args.dst_imgs is None:
+            raise ValueError('src_font and dst_imgs are required.')
+        fonts2imgs(args.src_fonts_dir, args.dst_imgs, args.char_size,
                   args.canvas_size, args.x_offset, args.y_offset,
                   args.sample_count, args.sample_dir)
     elif args.mode == 'imgs2imgs':

@@ -15,6 +15,8 @@ from fontTools.ttLib import TTFont
 from torchvision import transforms
 from torch import nn
 
+from utils.charset_util import processGlyphNames
+
 
 def draw_single_char(ch, font, canvas_size, x_offset=0, y_offset=0):
     img = Image.new("L", (canvas_size * 2, canvas_size * 2), 0)
@@ -72,28 +74,6 @@ def draw_font2font_example(ch, src_font, dst_font, canvas_size, x_offset, y_offs
     # convert to gray img
     example_img = example_img.convert('L')
     return example_img
-
-
-def processGlyphNames(GlyphNames):
-    res = set()
-    for char in GlyphNames:
-        if char.startswith('uni'):
-            char = char[3:]
-        elif char.startswith('u'):
-            char = char[1:]
-        else:
-            continue
-        if char:
-            try:
-                char_int = int(char, base=16)
-            except ValueError:
-                continue
-            try:
-                char = chr(char_int)
-            except ValueError:
-                continue
-            res.add(char)
-    return res
 
 
 parser = argparse.ArgumentParser()
