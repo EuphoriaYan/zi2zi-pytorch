@@ -49,34 +49,9 @@ parser.add_argument('--save_obj_dir', type=str, default=None)
 args = parser.parse_args()
 
 
-def get_special_type():
-
-    with open(args.type_file, 'r', encoding='utf-8') as fp:
-        font_list = [line.strip() for line in fp]
-    '''
-    font_list = os.listdir(args.type_dir)
-    font_list = [f[:f.find('.test.jpg')] for f in font_list]
-    '''
-    font_set = set(font_list)
-    font_dict = {v: k for v, k in enumerate(font_list)}
-    inv_font_dict = {k: v for v, k in font_dict.items()}
-    return font_set, font_dict, inv_font_dict
-
-
 if __name__ == "__main__":
     if not os.path.isdir(args.save_dir):
         os.mkdir(args.save_dir)
-
-    font_set, font_dict, inv_font_dict = get_special_type()
-
-    dst_json = args.dst_json
-    with open(dst_json, 'r', encoding='utf-8') as fp:
-        dst_fonts = json.load(fp)
-
-    # from total label to type label
-    label_map = inv_font_dict
-
-    ok_fonts = set(label_map.keys())
 
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
@@ -91,8 +66,7 @@ if __name__ == "__main__":
     for file_name in tqdm(total_file_list):
         label = os.path.basename(file_name).split('_')[0]
         label = int(label)
-        if label in ok_fonts:
-            cur_file_list.append((file_name, label_map[label]))
+        cur_file_list.append((file_name, label))
 
     if args.split_ratio == 0 and args.save_obj_dir is not None:
         pickle_examples_with_file_name(cur_file_list, args.save_obj_dir)
