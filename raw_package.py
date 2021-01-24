@@ -14,18 +14,17 @@ def pickle_examples_with_split_ratio(paths, train_path, val_path, train_val_spli
     Compile a list of examples into pickled format, so during
     the training, all io will happen in memory
     """
-    with open(train_path, 'wb') as ft:
-        with open(val_path, 'wb') as fv:
-            for p, label in tqdm(paths):
-                label = int(label)
-                with open(p, 'rb') as f:
-                    img_bytes = f.read()
-                    r = random.random()
-                    example = (label, img_bytes)
-                    if r < train_val_split:
-                        pickle.dump(example, fv)
-                    else:
-                        pickle.dump(example, ft)
+    with open(train_path, 'wb') as ft, open(val_path, 'wb') as fv:
+        for p, label in tqdm(paths):
+            label = int(label)
+            with open(p, 'rb') as f:
+                img_bytes = f.read()
+                r = random.random()
+                example = (label, img_bytes)
+                if r < train_val_split:
+                    pickle.dump(example, fv)
+                else:
+                    pickle.dump(example, ft)
 
 
 def pickle_examples_with_file_name(paths, obj_path):
