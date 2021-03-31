@@ -259,9 +259,8 @@ This command will output every type of writing in you infer path. Have fun!
 
 ## Pre-trained model
 
-For some our school's own reasons, we can't release pre-trained model now.
-
-We will release our model as soon as possible.
+* FZSONG_ZhongHuaSong to Writing [Baidu Desk](https://pan.baidu.com/s/1wRiDg_vOY7EMWZHQLRJcpw) password: nlc1
+  Setting: embedding_num=40, input_nc=1
 
 ## Acknowledgements
 Code derived and rehashed from:
