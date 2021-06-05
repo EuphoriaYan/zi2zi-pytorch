@@ -295,7 +295,7 @@ def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
 
 load_global_charset()
 parser = argparse.ArgumentParser()
-parser.add_argument('--mode', type=str, choices=['imgs2imgs, font2imgs, font2font', 'fonts2imgs'], required=True,
+parser.add_argument('--mode', type=str, choices=['imgs2imgs', 'font2imgs', 'font2font', 'fonts2imgs'], required=True,
                     help='generate mode.\n'
                          'use --src_imgs and --dst_imgs for imgs2imgs mode.\n'
                          'use --src_font and --dst_imgs for font2imgs mode.\n'
