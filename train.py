@@ -41,6 +41,7 @@ parser.add_argument('--flip_labels', action='store_true',
                     help='whether flip training data labels or not, in fine tuning')
 parser.add_argument('--random_seed', type=int, default=777,
                     help='random seed for random and pytorch')
+parser.add_argument('--resume', type=int, default=None, help='resume from previous training')
 parser.add_argument('--input_nc', type=int, default=3,
                     help='number of input images channels')
 
@@ -77,6 +78,8 @@ def main():
     )
     model.setup()
     model.print_networks(True)
+    if args.resume:
+        model.load_networks(args.resume)
 
     # val dataset load only once, no shuffle
     val_dataset = DatasetFromObj(os.path.join(data_dir, 'val.obj'), input_nc=args.input_nc)
