@@ -72,22 +72,24 @@ if __name__ == "__main__":
 
     font_set, font_dict, inv_font_dict = get_special_type()
 
-    dst_json = args.dst_json
-    with open(dst_json, 'r', encoding='utf-8') as fp:
-        dst_fonts = json.load(fp)
-
     # from total label to type label
     label_map = dict()
+    ok_fonts = None
 
-    for idx, dst_font in enumerate(dst_fonts):
-        font_name = dst_font['font_name']
-        font_name = os.path.splitext(font_name)[0]
-        if font_name in font_set:
-            label_map[idx] = inv_font_dict[font_name]
-        else:
-            continue
+    dst_json = args.dst_json
+    if not dst_json is None:
+        with open(dst_json, 'r', encoding='utf-8') as fp:
+            dst_fonts = json.load(fp)
 
-    ok_fonts = set(label_map.keys())
+        for idx, dst_font in enumerate(dst_fonts):
+            font_name = dst_font['font_name']
+            font_name = os.path.splitext(font_name)[0]
+            if font_name in font_set:
+                label_map[idx] = inv_font_dict[font_name]
+            else:
+                continue
+        ok_fonts = set(label_map.keys())
+    
 
     train_path = os.path.join(args.save_dir, "train.obj")
     val_path = os.path.join(args.save_dir, "val.obj")
@@ -102,8 +104,11 @@ if __name__ == "__main__":
     for file_name in tqdm(total_file_list):
         label = os.path.basename(file_name).split('_')[0]
         label = int(label)
-        if label in ok_fonts:
-            cur_file_list.append((file_name, label_map[label]))
+        if ok_fonts is None:
+            cur_file_list.append((file_name, label))
+        else:
+            if label in ok_fonts:
+                cur_file_list.append((file_name, label_map[label]))
 
     if args.split_ratio == 0 and args.save_obj_dir is not None:
         pickle_examples_with_file_name(cur_file_list, args.save_obj_dir)
