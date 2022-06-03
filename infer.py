@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from data import DatasetFromObj
 from torch.utils.data import DataLoader, TensorDataset
 from model import Zi2ZiModel
