@@ -244,25 +244,15 @@ def fonts2imgs(src_fonts_dir, dst, char_size, canvas_size,
                 count += 1
 
 
-def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
+def imgs2imgs(src, dst, label, ratio, offset, canvas_size, sample_count, sample_dir):
 
-    # -*- You should fill the target imgs' label_map -*-
-    label_map = {
-        '1号字体': 0,
-        '2号字体': 1,
-    }
     count = 0
-    # For example
-    # source images are 南~0号字体1，南~0号字体2，京~0号字体，市~0号字体，长~0号字体，江~0号字体，大~0号字体，桥~0号字体
-    # make sure all the source images are same font, or at least, very close fonts.
-    # target images are 南~1号字体，京~1号字体，市~1号字体，长~2号字体
 
-    # -*- You should fill the source/target imgs' regular expressions. -*-
 
     # We only need character in source img.
-    source_pattern = re.compile('(.)~0号字体')
+    source_pattern = re.compile('^(.*)\\.(png|jpg)$')
     # We need character and label in target img.
-    target_pattern = re.compile('(.)~(/d)号字体')
+    target_pattern = re.compile('^(.*)\\.(png|jpg)$')
 
     # Multi-imgs with a same character in src_imgs are allowed.
     # Use default_dict(list) to storage.
@@ -282,13 +272,18 @@ def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
         idx = random.randint(0, len(res))
         return res[idx]
 
+    def box(width:int, height:int, ratio:float, offset:float):
+        edge_chop= (1. - ratio) / 2.
+        box= (0, height*(edge_chop+offset), width, height*(min(1, ((1-edge_chop) + offset))))
+        return box
+
     for c in tqdm(os.listdir(dst)):
         if count == sample_count:
             break
         res = re.match(target_pattern, c)
         if res:
             ch = res[1]
-            label = label_map[res[2]]
+            # label = label_map[res[2]]
             src_img_name = get_source_img(ch)
             if src_img_name is None:
                 continue
@@ -296,6 +291,7 @@ def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
             src_img = Image.open(img_path)
             img_path = os.path.join(dst, c)
             dst_img = Image.open(img_path)
+            dst_img= dst_img.resize((dst_img.width, dst_img.height), box=box(dst_img.width, dst_img.height, ratio, offset))
             e = draw_imgs2imgs_example(src_img, dst_img, canvas_size)
             if e:
                 e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
@@ -304,14 +300,14 @@ def imgs2imgs(src, dst, canvas_size, sample_count, sample_dir):
 
 load_global_charset()
 parser = argparse.ArgumentParser()
-parser.add_argument('--mode', type=str, choices=['imgs2imgs', 'font2imgs', 'font2font', 'fonts2imgs'], required=True,
-                    help='generate mode.\n'
-                         'use --src_imgs and --dst_imgs for imgs2imgs mode.\n'
-                         'use --src_font and --dst_imgs for font2imgs mode.\n'
-                         'use --src_font and --dst_font for font2font mode.\n'
-                         'use --src_fonts_dir and --dst_imgs for fonts2imgs mode.\n'
-                         'No imgs2font mode.'
-                    )
+parser.add_argument(
+    '--mode', type=str, choices=['imgs2imgs', 'font2imgs', 'font2font', 'fonts2imgs'], required=True,
+    help='generate mode.\n'
+        'use --src_imgs and --dst_imgs for imgs2imgs mode.\n'
+        'use --src_font and --dst_imgs for font2imgs mode.\n'
+        'use --src_font and --dst_font for font2font mode.\n'
+        'use --src_fonts_dir and --dst_imgs for fonts2imgs mode.\n'
+        'No imgs2font mode.')
 parser.add_argument('--src_font', type=str, default=None, help='path of the source font')
 parser.add_argument('--src_fonts_dir', type=str, default=None, help='path of the source fonts')
 parser.add_argument('--src_imgs', type=str, default=None, help='path of the source imgs')
@@ -319,8 +315,9 @@ parser.add_argument('--dst_font', type=str, default=None, help='path of the targ
 parser.add_argument('--dst_imgs', type=str, default=None, help='path of the target imgs')
 
 parser.add_argument('--filter', default=False, action='store_true', help='filter recurring characters')
-parser.add_argument('--charset', type=str, default='CN',
-                    help='charset, can be either: CN, JP, KR or a one line file. ONLY VALID IN font2font mode.')
+parser.add_argument(
+    '--charset', type=str, default='CN',
+    help='charset, can be either: CN, JP, KR or a one line file. ONLY VALID IN font2font mode.')
 parser.add_argument('--shuffle', default=False, action='store_true', help='shuffle a charset before processings')
 parser.add_argument('--char_size', type=int, default=256, help='character size')
 parser.add_argument('--canvas_size', type=int, default=256, help='canvas size')
@@ -329,6 +326,8 @@ parser.add_argument('--y_offset', type=int, default=0, help='y_offset')
 parser.add_argument('--sample_count', type=int, default=5000, help='number of characters to draw')
 parser.add_argument('--sample_dir', type=str, default='sample_dir', help='directory to save examples')
 parser.add_argument('--label', type=int, default=0, help='label as the prefix of examples')
+parser.add_argument('--ratio', type=float, default=1., help='chop ratio of the target images')
+parser.add_argument('--offset', type=float, default=0., help='offset of the target images')
 
 args = parser.parse_args()
 
@@ -362,6 +361,6 @@ if __name__ == "__main__":
     elif args.mode == 'imgs2imgs':
         if args.src_imgs is None or args.dst_imgs is None:
             raise ValueError('src_imgs and dst_imgs are required.')
-        imgs2imgs(args.src_imgs, args.dst_imgs, args.canvas_size, args.sample_count, args.sample_dir)
+        imgs2imgs(args.src_imgs, args.dst_imgs, args.label, args.ratio, args.offset, args.canvas_size, args.sample_count, args.sample_dir)
     else:
         raise ValueError('mode should be font2font, font2imgs or imgs2imgs')
