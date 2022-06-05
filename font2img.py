@@ -189,6 +189,7 @@ def font2imgs(src, dst, char_size, canvas_size,
             img_path = os.path.join(dst, c)
             dst_img = Image.open(img_path)
             e = draw_font2imgs_example(ch, src_font, dst_img, canvas_size, x_offset, y_offset)
+            dst_img.close()
             if e:
                 e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
                 count += 1
@@ -239,6 +240,7 @@ def fonts2imgs(src_fonts_dir, dst, char_size, canvas_size,
                 e = draw_font2imgs_example(ch, fontPlane02, dst_img, canvas_size, x_offset, y_offset)
             else:
                 e = None
+            dst_img.close()
             if e:
                 e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
                 count += 1
@@ -293,6 +295,8 @@ def imgs2imgs(src, dst, label, ratio, offset, canvas_size, sample_count, sample_
             dst_img = Image.open(img_path)
             dst_img= dst_img.resize((dst_img.width, dst_img.height), box=box(dst_img.width, dst_img.height, ratio, offset))
             e = draw_imgs2imgs_example(src_img, dst_img, canvas_size)
+            src_img.close()
+            dst_img.close()
             if e:
                 e.save(os.path.join(sample_dir, "%d_%04d.jpg" % (label, count)))
                 count += 1
