@@ -76,7 +76,8 @@ def main():
         Lconst_penalty=args.Lconst_penalty,
         Lcategory_penalty=args.Lcategory_penalty,
         save_dir=checkpoint_dir,
-        gpu_ids=args.gpu_ids
+        gpu_ids=args.gpu_ids,
+        lr= args.lr,
     )
     model.setup()
     model.print_networks(True)
