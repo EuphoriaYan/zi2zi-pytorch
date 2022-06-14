@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from data import DatasetFromObj
 from torch.utils.data import DataLoader, TensorDataset
 from model import Zi2ZiModel
@@ -119,7 +121,9 @@ def main():
         fonts = [s.strip() for s in fp.readlines()]
     writer_dict = {v: k for k, v in enumerate(fonts)}
 
-    for batch in dataloader:
+    batch_size= dataloader.batch_size
+    batch_size= batch_size if batch_size else 0
+    for vbid, batch in enumerate(dataloader):
         if args.run_all_label:
             # global writer_dict
             writer_dict_inv = {v: k for k, v in writer_dict.items()}
@@ -128,11 +132,11 @@ def main():
                 model.forward()
                 tensor_to_plot = torch.cat([model.fake_B, model.real_B], 3)
                 # img = vutils.make_grid(tensor_to_plot)
-                save_image(tensor_to_plot, os.path.join(infer_dir, "infer_{}".format(writer_dict_inv[label_idx]) + "_construct.png"))
+                save_image(tensor_to_plot, os.path.join(infer_dir, "infer_{}".format(writer_dict_inv[label_idx+ vbid*29]) + "_construct.png"))
         else:
             # model.set_input(batch[0], batch[2], batch[1])
             # model.optimize_parameters()
-            model.sample(batch, infer_dir)
+            model.sample(batch, infer_dir, vbid*batch_size)
             global_steps += 1
 
     t_finish = time.time()

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from data import DatasetFromObj
 from torch.utils.data import DataLoader
 from model import Zi2ZiModel
@@ -74,7 +76,8 @@ def main():
         Lconst_penalty=args.Lconst_penalty,
         Lcategory_penalty=args.Lcategory_penalty,
         save_dir=checkpoint_dir,
-        gpu_ids=args.gpu_ids
+        gpu_ids=args.gpu_ids,
+        lr= args.lr,
     )
     model.setup()
     model.print_networks(True)
@@ -112,14 +115,18 @@ def main():
                 model.save_networks(global_steps)
                 print("Checkpoint: save checkpoint step %d" % global_steps)
             if global_steps % args.sample_steps == 0:
+                batch_size= val_dataloader.batch_size
+                batch_size= batch_size if batch_size else 0
                 for vbid, val_batch in enumerate(val_dataloader):
-                    model.sample(val_batch, os.path.join(sample_dir, str(global_steps)))
+                    model.sample(val_batch, os.path.join(sample_dir, str(global_steps)), vbid*batch_size)
                 print("Sample: sample step %d" % global_steps)
             global_steps += 1
         if (epoch + 1) % args.schedule == 0:
             model.update_lr()
     for vbid, val_batch in enumerate(val_dataloader):
-        model.sample(val_batch, os.path.join(sample_dir, str(global_steps)))
+        batch_size= val_dataloader.batch_size
+        batch_size= batch_size if batch_size else 0
+        model.sample(val_batch, os.path.join(sample_dir, str(global_steps)), vbid*batch_size)
         print("Checkpoint: save checkpoint step %d" % global_steps)
     model.save_networks(global_steps)
 

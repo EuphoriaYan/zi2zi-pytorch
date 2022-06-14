@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import torch
 import torch.nn as nn
 from .generators import UNetGenerator
@@ -10,11 +12,12 @@ import torchvision.utils as vutils
 
 
 class Zi2ZiModel:
-    def __init__(self, input_nc=3, embedding_num=40, embedding_dim=128,
-                 ngf=64, ndf=64,
-                 Lconst_penalty=15, Lcategory_penalty=1, L1_penalty=100,
-                 schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True,
-                 image_size=256):
+    def __init__(
+        self, input_nc=3, embedding_num=40, embedding_dim=128,
+        ngf=64, ndf=64,
+        Lconst_penalty=15, Lcategory_penalty=1, L1_penalty=100,
+        schedule=10, lr=0.001, gpu_ids=None, save_dir='.', is_training=True,
+        image_size=256):
 
         if is_training:
             self.use_dropout = True
@@ -243,7 +246,7 @@ class Zi2ZiModel:
                 # net.eval()
         print('load model %d' % epoch)
 
-    def sample(self, batch, basename):
+    def sample(self, batch, basename, start= 0):
         chk_mkdir(basename)
         cnt = 0
         with torch.no_grad():
@@ -253,7 +256,7 @@ class Zi2ZiModel:
             for label, image_tensor in zip(batch[0], tensor_to_plot):
                 label_dir = os.path.join(basename, str(label.item()))
                 chk_mkdir(label_dir)
-                vutils.save_image(image_tensor, os.path.join(label_dir, str(cnt) + '.png'))
+                vutils.save_image(image_tensor, os.path.join(label_dir, str(start+cnt) + '.png'))
                 cnt += 1
             # img = vutils.make_grid(tensor_to_plot)
             # vutils.save_image(tensor_to_plot, basename + "_construct.png")
